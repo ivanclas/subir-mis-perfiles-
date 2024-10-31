@@ -10,13 +10,13 @@
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
-            authDomain: "guardar-fotos-ec316.firebaseapp.com",
-            projectId: "guardar-fotos-ec316",
-            storageBucket: "guardar-fotos-ec316.appspot.com",
-            messagingSenderId: "529201655026",
-            appId: "1:529201655026:web:f10e873d825a72b5d8b46b",
-            measurementId: "G-SMEHYGBPRR"
+            apiKey: "API_KEY",
+            authDomain: "AUTH_DOMAIN",
+            projectId: "PROJECT_ID",
+            storageBucket: "STORAGE_BUCKET",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID",
+            measurementId: "MEASUREMENT_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -213,15 +213,18 @@
     <button id="reportButton" onclick="window.location.href='reporte.html'">📊</button>
 
     <script>
-        // Cargar el menú desde `index.html`
+        // Cargar el menú desde el archivo `index.html`
         fetch('index.html')
             .then(response => response.text())
             .then(data => {
-                // Extraer solo el contenido del menú de la respuesta
                 const parser = new DOMParser();
-                const htmlDoc = parser.parseFromString(data, 'text/html');
-                const menu = htmlDoc.querySelector('.navbar');
-                document.getElementById('menuContainer').appendChild(menu);
+                const doc = parser.parseFromString(data, 'text/html');
+                const menu = doc.querySelector('.navbar');
+                if (menu) {
+                    document.getElementById('menuContainer').appendChild(menu);
+                } else {
+                    console.error("No se encontró el menú en index.html");
+                }
             })
             .catch(error => console.error('Error al cargar el menú:', error));
     </script>

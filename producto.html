@@ -213,18 +213,18 @@
     <button id="reportButton" onclick="window.location.href='reporte.html'">📊</button>
 
     <script>
-        // Cargar el menú desde el archivo `index.html`
-        fetch('index.html')
-            .then(response => response.text())
-            .then(data => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data, 'text/html');
-                const menu = doc.querySelector('.navbar');
-                if (menu) {
-                    document.body.insertBefore(menu, document.body.firstChild); // Insertar menú al inicio del body
-                }
-            })
-            .catch(error => console.error('Error al cargar el menú:', error));
+       fetch('index.html')
+    .then(response => response.text())
+    .then(data => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+        const menu = doc.querySelector('.navbar');
+        if (menu) {
+            document.getElementById('menuContainer').appendChild(menu); // Inserta en `menuContainer`
+        }
+    })
+    .catch(error => console.error('Error al cargar el menú:', error));
+
     </script>
     
 </body>

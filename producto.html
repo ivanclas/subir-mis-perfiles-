@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subir Fotos a Firebase</title>
+    <iframe src="menu.html" style="width: 100%; height: 70px; border: none;"></iframe>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
@@ -213,18 +215,12 @@
     <button id="reportButton" onclick="window.location.href='reporte.html'">📊</button>
 
     <script>
-        // Cargar el HTML del menú
-        fetch('index.html')
+        fetch('menu.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('menuContainer').innerHTML = data;
-            });
-    
-        // Cargar el CSS del menú
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'menu.css';
-        document.head.appendChild(link);
+            })
+            .catch(error => console.error('Error al cargar el menú:', error));
     </script>
 </body>
 </html>

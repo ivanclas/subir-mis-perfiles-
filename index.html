@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú de Navegación Mejorado</title>
+    <!-- Importar Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Iconos de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Estilos del menú */
+        .navbar {
+            width: 100%;
+            background-color: #4CAF50;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: white;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar .logo i {
+            font-size: 28px;
+        }
+
+        .navbar .menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .navbar .menu a:hover {
+            color: #e3e3e3;
+        }
+
+        /* Botón de menú en dispositivos móviles */
+        .navbar .menu-toggle {
+            display: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Menú desplegable para móvil */
+        .menu-responsive {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #4CAF50;
+            padding: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: 60px;
+            width: 100%;
+            z-index: 999;
+            align-items: center;
+        }
+
+        .menu-responsive a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .menu-responsive a:hover {
+            color: #e3e3e3;
+        }
+
+        /* Estilos de adaptabilidad */
+        @media (max-width: 768px) {
+            .navbar .menu {
+                display: none;
+            }
+
+            .navbar .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Estilos del mensaje de bienvenida */
+        .welcome-section {
+            margin-top: 100px;
+            text-align: center;
+            padding: 40px 20px;
+            background-image: url('fondo.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            width: 100%;
+        }
+
+        .welcome-section h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .welcome-section p {
+            font-size: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú de Navegación -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-stream"></i>
+            Mi Streaming
+        </div>
+        <div class="menu">
+            <a href="usuario.html"><i class="fas fa-user-plus"></i> Registro de Usuarios</a>
+            <a href="producto.html"><i class="fas fa-box-open"></i> Registro de Productos</a>
+        </div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Menú desplegable para móviles -->
+    <div id="responsiveMenu" class="menu-responsive">
+        <a href="usuario.html" onclick="toggleMenu()"><i class="fas fa-user-plus"></i> Registro de Usuarios</a>
+        <a href="producto.html" onclick="toggleMenu()"><i class="fas fa-box-open"></i> Registro de Productos</a>
+    </div>
+
+    <!-- Sección de Bienvenida -->
+    <section id="welcomeSection" class="welcome-section">
+        <h1>¡Bienvenido a Mi Streaming!</h1>
+        <p>Gestiona fácilmente tus usuarios y productos de streaming con nuestras herramientas intuitivas y fáciles de usar.</p>
+    </section>
+
+    <script>
+        function toggleMenu() {
+            const responsiveMenu = document.getElementById('responsiveMenu');
+            responsiveMenu.style.display = responsiveMenu.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+</body>
+</html>

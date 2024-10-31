@@ -3,12 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir Fotos a Firebase</title>
+    <title>Registro de Usuarios</title>
     <!-- Importar Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
+            authDomain: "guardar-fotos-ec316.firebaseapp.com",
+            projectId: "guardar-fotos-ec316",
+            storageBucket: "guardar-fotos-ec316.appspot.com",
+            messagingSenderId: "529201655026",
+            appId: "1:529201655026:web:f10e873d825a72b5d8b46b",
+            measurementId: "G-SMEHYGBPRR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+
+        window.addEventListener('load', () => {
+            const form = document.getElementById('userForm');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('userName').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const profile = document.getElementById('streamingProfile').value;
+
+                try {
+                    await addDoc(collection(firestore, 'users'), {
+                        name: name,
+                        startDate: startDate,
+                        endDate: endDate,
+                        profile: profile
+                    });
+
+                    alert('¡Usuario registrado con éxito!');
+                    form.reset();
+                } catch (error) {
+                    console.error("Error al registrar el usuario:", error);
+                    alert('Error al registrar el usuario. Inténtalo de nuevo.');
+                }
+            });
+        });
+    </script>
     <style>
+        /* Estilos generales */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -16,19 +62,23 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
             margin: 0;
-            padding-top: 70px; /* Espacio para el menú fijo */
+            padding-top: 80px; /* Espacio para el menú fijo */
+            color: #333;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
         h1 {
-            text-align: center;
-            color: #333;
+            font-size: 32px;
+            color: #4CAF50;
+            font-weight: 600;
+            margin-top: 20px;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         /* Estilos del menú */
@@ -130,67 +180,60 @@
             }
         }
 
-        #uploadForm {
+        /* Estilos del formulario */
+        #userForm {
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
-        input[type="text"], input[type="number"], input[type="file"] {
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
             width: 90%;
-            padding: 12px;
+            margin-bottom: 40px;
+        }
+
+        #userForm input[type="text"],
+        #userForm input[type="date"],
+        #userForm select {
+            width: 100%;
+            padding: 15px;
             margin: 10px 0;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s ease;
         }
-        button {
-            background-color: #28a745;
+
+        #userForm input:focus,
+        #userForm select:focus {
+            border-color: #4CAF50;
+        }
+
+        #userForm button {
+            background-color: #4CAF50;
             color: white;
-            padding: 12px;
+            padding: 15px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            font-size: 16px;
-            transition: background-color 0.2s;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 20px;
         }
-        button:hover {
-            background-color: #218838;
+
+        #userForm button:hover {
+            background-color: #43A047;
+            transform: translateY(-2px);
         }
-        #previewImage {
-            display: none;
-            width: 150px;
-            height: 150px;
-            margin: 10px 0;
-            border-radius: 8px;
-            object-fit: cover;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        #userForm button:active {
+            transform: translateY(0);
         }
-        #progressContainer {
-            display: none;
-            margin-top: 10px;
-        }
-        progress {
-            width: 100%;
-            height: 20px;
-            border-radius: 8px;
-        }
-        progress::-webkit-progress-bar {
-            background-color: #e0e0e0;
-            border-radius: 8px;
-        }
-        progress::-webkit-progress-value {
-            background-color: #28a745;
-            border-radius: 8px;
-        }
-        #progressText {
-            text-align: center;
-            margin-top: 5px;
-            font-size: 14px;
-            color: #333;
-        }
+
+        /* Estilos del botón de reporte */
         #reportButton {
             position: fixed;
             bottom: 20px;
@@ -204,13 +247,42 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s, transform 0.2s;
+            z-index: 1000;
         }
+
         #reportButton:hover {
             background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        #reportButton:active {
+            transform: translateY(0);
+        }
+
+        /* Estilos adicionales */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 28px;
+                margin-top: 20px;
+            }
+
+            #userForm {
+                padding: 20px;
+            }
+
+            #userForm button {
+                font-size: 16px;
+            }
+
+            #reportButton {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -236,7 +308,7 @@
         <a href="producto.html" onclick="toggleMenu()"><i class="fas fa-box-open"></i> Registro de Productos</a>
     </div>
 
-    
+ 
 
     <script>
         function toggleMenu() {

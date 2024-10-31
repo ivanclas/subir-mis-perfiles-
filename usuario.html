@@ -3,6 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Fotos a Firebase</title>
+    <!-- Importar Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Iconos de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding-top: 70px; /* Espacio para el menú fijo */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos del menú */
+        .navbar {
+            width: 100%;
+            background-color: #4CAF50;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar .logo i {
+            font-size: 28px;
+        }
+
+        .navbar .menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .navbar .menu a:hover {
+            color: #e3e3e3;
+        }
+
+        /* Botón de menú en dispositivos móviles */
+        .navbar .menu-toggle {
+            display: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Menú desplegable para móvil */
+        .menu-responsive {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #4CAF50;
+            padding: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: 60px;
+            width: 100%;
+            z-index: 999;
+            align-items: center;
+        }
+
+        .menu-responsive a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .menu-responsive a:hover {
+            color: #e3e3e3;
+        }
+
+        /* Estilos de adaptabilidad */
+        @media (max-width: 768px) {
+            .navbar .menu {
+                display: none;
+            }
+
+            .navbar .menu-toggle {
+                display: block;
+            }
+        }
+
+        #uploadForm {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #previewImage {
+            display: none;
+            width: 150px;
+            height: 150px;
+            margin: 10px 0;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        #progressContainer {
+            display: none;
+            margin-top: 10px;
+        }
+        progress {
+            width: 100%;
+            height: 20px;
+            border-radius: 8px;
+        }
+        progress::-webkit-progress-bar {
+            background-color: #e0e0e0;
+            border-radius: 8px;
+        }
+        progress::-webkit-progress-value {
+            background-color: #28a745;
+            border-radius: 8px;
+        }
+        #progressText {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+        #reportButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+        #reportButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú de Navegación -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-stream"></i>
+            Mi Streaming
+        </div>
+        <div class="menu">
+            <a href="usuario.html"><i class="fas fa-user-plus"></i> Registro de Usuarios</a>
+            <a href="producto.html"><i class="fas fa-box-open"></i> Registro de Productos</a>
+        </div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Menú desplegable para móviles -->
+    <div id="responsiveMenu" class="menu-responsive">
+        <a href="usuario.html" onclick="toggleMenu()"><i class="fas fa-user-plus"></i> Registro de Usuarios</a>
+        <a href="producto.html" onclick="toggleMenu()"><i class="fas fa-box-open"></i> Registro de Productos</a>
+    </div>
+
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuarios</title>
     <!-- Importar Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -60,6 +298,7 @@
             background-color: #f4f6f9;
             margin: 0;
             padding: 0;
+            padding-top: 70px; /* Espacio para el menú fijo */
             color: #333;
             display: flex;
             flex-direction: column;
@@ -203,14 +442,16 @@
         <i class="fas fa-chart-bar"></i>
     </button>
 
+   
+</body>
+</html>
+
+
     <script>
-        // Cargar el menú desde el archivo `menu.html`
-        fetch('index.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('menuContainer').innerHTML = data;
-            })
-            .catch(error => console.error('Error al cargar el menú:', error));
+        function toggleMenu() {
+            const responsiveMenu = document.getElementById('responsiveMenu');
+            responsiveMenu.style.display = responsiveMenu.style.display === 'flex' ? 'none' : 'flex';
+        }
     </script>
 </body>
 </html>

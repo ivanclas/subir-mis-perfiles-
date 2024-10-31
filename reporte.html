@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Productos</title>
+    <!-- Iconos de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
+            apiKey: "API_KEY",
             authDomain: "guardar-fotos-ec316.firebaseapp.com",
             projectId: "guardar-fotos-ec316",
             storageBucket: "guardar-fotos-ec316.appspot.com",
@@ -27,23 +29,19 @@
 
             try {
                 const querySnapshot = await getDocs(collection(firestore, 'photos'));
-                
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const productId = docSnap.id;
-
                     const row = document.createElement('tr');
-
                     row.innerHTML = `
                         <td><img src="${data.imageUrl}" alt="${data.name}" class="table-image"></td>
                         <td>${data.name}</td>
                         <td>S/ <span id="price-${productId}">${data.price}</span></td>
                         <td>
-                            <button class="edit-btn" onclick="window.editPrice('${productId}')">Editar</button>
-                            <button class="delete-btn" onclick="window.deleteProduct('${productId}')">Eliminar</button>
+                            <button class="edit-btn" onclick="window.editPrice('${productId}')"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="window.deleteProduct('${productId}')"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     `;
-                    
                     tableBody.appendChild(row);
                 });
             } catch (error) {
@@ -58,7 +56,7 @@
                 try {
                     await deleteDoc(doc(firestore, 'photos', productId));
                     alert("Producto eliminado con éxito");
-                    loadReport(); // Recargar reporte después de eliminar
+                    loadReport();
                 } catch (error) {
                     console.error("Error al eliminar el producto:", error);
                     alert("Error al eliminar el producto. Inténtalo de nuevo.");
@@ -90,115 +88,131 @@
     </script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f3f3f3;
-            padding: 10px;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         h1 {
-            color: #333;
-            font-size: 20px;
+            font-size: 24px;
+            color: #4CAF50;
             margin-bottom: 20px;
             text-align: center;
+            font-weight: 600;
         }
+
         table {
             width: 100%;
+            max-width: 800px;
             border-collapse: collapse;
-            background-color: #ffffff;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
+
         th, td {
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #4CAF50;
             color: white;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 16px;
         }
+
         td {
-            font-size: 12px;
+            font-size: 14px;
+            color: #333;
         }
+
         .table-image {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
             object-fit: cover;
-            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
+
         .edit-btn, .delete-btn {
-            padding: 5px 8px;
-            font-size: 12px;
+            padding: 8px 12px;
+            font-size: 14px;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.2s;
             margin: 2px;
+            transition: transform 0.2s;
         }
+
         .edit-btn {
             background-color: #007bff;
         }
+
         .edit-btn:hover {
             background-color: #0056b3;
+            transform: scale(1.1);
         }
+
         .delete-btn {
             background-color: #dc3545;
         }
+
         .delete-btn:hover {
             background-color: #c82333;
+            transform: scale(1.1);
         }
+
+        #reportButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 15px;
+        }
+
+        #reportButton:hover {
+            background-color: #43A047;
+        }
+
         @media (max-width: 768px) {
-            h1 {
-                font-size: 18px;
+            table {
+                font-size: 14px;
             }
             .table-image {
-                width: 30px;
-                height: 30px;
+                width: 40px;
+                height: 40px;
             }
             th, td {
-                font-size: 12px;
                 padding: 8px;
             }
         }
+
         @media (max-width: 480px) {
             table {
-                display: block;
-                overflow-x: auto;
+                font-size: 12px;
                 width: 100%;
             }
             .table-image {
-                width: 25px;
-                height: 25px;
+                width: 35px;
+                height: 35px;
             }
             th, td {
-                font-size: 11px;
-                padding: 5px;
+                padding: 6px;
             }
-        }
-        #reportButton {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 10%;
-            width: 80px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s;
-        }
-        #reportButton:hover {
-            background-color: #0056b3;
         }
     </style>
 </head>
@@ -215,6 +229,7 @@
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
+
+    <button id="reportButton" onclick="window.location.href='producto.html'">Volver</button>
 </body>
 </html>
-<button id="reportButton" onclick="window.location.href='producto.html'">volver</button>

@@ -1,16 +1,34 @@
-<!-- menu.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Fotos a Firebase</title>
+    <!-- Importar Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding-top: 70px; /* Espacio para el menú fijo */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
         }
 
         /* Estilos del menú */
@@ -111,6 +129,89 @@
                 display: block;
             }
         }
+
+        #uploadForm {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #previewImage {
+            display: none;
+            width: 150px;
+            height: 150px;
+            margin: 10px 0;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        #progressContainer {
+            display: none;
+            margin-top: 10px;
+        }
+        progress {
+            width: 100%;
+            height: 20px;
+            border-radius: 8px;
+        }
+        progress::-webkit-progress-bar {
+            background-color: #e0e0e0;
+            border-radius: 8px;
+        }
+        progress::-webkit-progress-value {
+            background-color: #28a745;
+            border-radius: 8px;
+        }
+        #progressText {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+        #reportButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+        #reportButton:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -134,6 +235,21 @@
         <a href="usuario.html" onclick="toggleMenu()"><i class="fas fa-user-plus"></i> Registro de Usuarios</a>
         <a href="producto.html" onclick="toggleMenu()"><i class="fas fa-box-open"></i> Registro de Productos</a>
     </div>
+
+    <h1>Subir Fotos de Productos</h1>
+    <form id="uploadForm">
+        <input type="text" id="photoName" placeholder="Nombre de la Foto" required>
+        <input type="number" id="photoPrice" placeholder="Precio de la Foto" required>
+        <input type="file" id="photoFile" accept="image/*" required>
+        <img id="previewImage" alt="Vista previa de la imagen">
+        <div id="progressContainer">
+            <progress id="progressBar" value="0" max="100"></progress>
+            <div id="progressText"></div>
+        </div>
+        <button type="submit">Subir</button>
+    </form>
+
+    <button id="reportButton" onclick="window.location.href='reporte.html'">📊</button>
 
     <script>
         function toggleMenu() {

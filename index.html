@@ -19,9 +19,6 @@
             font-family: 'Poppins', sans-serif;
             background-color: #f4f6f9;
             color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         /* Estilos del menú */
@@ -121,31 +118,6 @@
                 display: block;
             }
         }
-
-        /* Estilos del mensaje de bienvenida */
-        .welcome-section {
-            margin-top: 100px;
-            text-align: center;
-            padding: 40px 20px;
-            background-image: url('fondo.jpg');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            width: 100%;
-        }
-
-        .welcome-section h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .welcome-section p {
-            font-size: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-        }
     </style>
 </head>
 <body>
@@ -169,12 +141,6 @@
         <a href="usuario.html" onclick="toggleMenu()"><i class="fas fa-user-plus"></i> Registro de Usuarios</a>
         <a href="producto.html" onclick="toggleMenu()"><i class="fas fa-box-open"></i> Registro de Productos</a>
     </div>
-
-    <!-- Sección de Bienvenida -->
-    <section id="welcomeSection" class="welcome-section">
-        <h1>¡Bienvenido a Mi Streaming!</h1>
-        <p>Gestiona fácilmente tus usuarios y productos de streaming con nuestras herramientas intuitivas y fáciles de usar.</p>
-    </section>
 
     <script>
         function toggleMenu() {

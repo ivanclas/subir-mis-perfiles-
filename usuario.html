@@ -9,6 +9,7 @@
     <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
+        /* Estilos generales */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -23,6 +24,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
 
         h1 {
@@ -81,15 +84,7 @@
             color: #e3e3e3;
         }
 
-        /* Botón de menú en dispositivos móviles */
-        .navbar .menu-toggle {
-            display: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: white;
-        }
-
-        /* Menú desplegable para móvil */
+        /* Estilos del submenú */
         .menu-responsive {
             display: none;
             flex-direction: column;
@@ -128,23 +123,68 @@
             .navbar .menu-toggle {
                 display: block;
             }
+
+            #uploadForm {
+                padding: 15px;
+                width: 100%;
+            }
+
+            #uploadForm input[type="text"],
+            #uploadForm input[type="email"],
+            #uploadForm input[type="password"],
+            #uploadForm input[type="date"],
+            #uploadForm select,
+            #uploadForm button {
+                width: 100%;
+                padding: 14px;
+                font-size: 14px;
+            }
+
+            #reportButton {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
         }
 
+        @media (min-width: 769px) {
+            #uploadForm {
+                max-width: 500px;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                width: 90%;
+            }
+
+            #uploadForm input[type="text"],
+            #uploadForm input[type="email"],
+            #uploadForm input[type="password"],
+            #uploadForm input[type="date"],
+            #uploadForm select,
+            #uploadForm button {
+                width: 90%;
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
+
+        /* Estilos del formulario */
         #uploadForm {
             background: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 30px;
+            border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
             width: 100%;
         }
-        input[type="text"], input[type="number"], input[type="file"] {
-            width: 90%;
+
+        input[type="text"], input[type="email"], input[type="password"], input[type="date"], select {
+            width: 100%;
             padding: 12px;
             margin: 10px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
         button {
             background-color: #28a745;
             color: white;
@@ -156,41 +196,11 @@
             font-size: 16px;
             transition: background-color 0.2s;
         }
+
         button:hover {
             background-color: #218838;
         }
-        #previewImage {
-            display: none;
-            width: 150px;
-            height: 150px;
-            margin: 10px 0;
-            border-radius: 8px;
-            object-fit: cover;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        #progressContainer {
-            display: none;
-            margin-top: 10px;
-        }
-        progress {
-            width: 100%;
-            height: 20px;
-            border-radius: 8px;
-        }
-        progress::-webkit-progress-bar {
-            background-color: #e0e0e0;
-            border-radius: 8px;
-        }
-        progress::-webkit-progress-value {
-            background-color: #28a745;
-            border-radius: 8px;
-        }
-        #progressText {
-            text-align: center;
-            margin-top: 5px;
-            font-size: 14px;
-            color: #333;
-        }
+
         #reportButton {
             position: fixed;
             bottom: 20px;
@@ -211,6 +221,23 @@
         }
         #reportButton:hover {
             background-color: #0056b3;
+        }
+
+        /* Estilos para el campo de contraseña */
+        .password-container {
+            position: relative;
+        }
+
+        .password-container input {
+            padding-right: 40px; /* Espacio para el botón de mostrar/ocultar */
+        }
+
+        .password-container i {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -236,213 +263,34 @@
         <a href="producto.html" onclick="toggleMenu()"><i class="fas fa-box-open"></i> Registro de Productos</a>
     </div>
 
-    <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuarios</title>
-    <!-- Importar Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Iconos de Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <script type="module">
-       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
-            authDomain: "guardar-fotos-ec316.firebaseapp.com",
-            projectId: "guardar-fotos-ec316",
-            storageBucket: "guardar-fotos-ec316.appspot.com",
-            messagingSenderId: "529201655026",
-            appId: "1:529201655026:web:f10e873d825a72b5d8b46b",
-            measurementId: "G-SMEHYGBPRR"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
-
-        window.addEventListener('load', () => {
-            const form = document.getElementById('userForm');
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const name = document.getElementById('userName').value;
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-                const profile = document.getElementById('streamingProfile').value;
-
-                try {
-                    await addDoc(collection(firestore, 'users'), {
-                        name: name,
-                        startDate: startDate,
-                        endDate: endDate,
-                        profile: profile
-                    });
-
-                    alert('¡Usuario registrado con éxito!');
-                    form.reset();
-                } catch (error) {
-                    console.error("Error al registrar el usuario:", error);
-                    alert('Error al registrar el usuario. Inténtalo de nuevo.');
-                }
-            });
-        });
-    </script>
-    <style>
-        /* Estilos generales */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
-            padding-top: 70px; /* Espacio para el menú fijo */
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            font-size: 32px;
-            color: #4CAF50;
-            font-weight: 600;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        /* Estilos del formulario */
-        #userForm {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 90%;
-            margin-bottom: 40px;
-        }
-
-        #userForm input[type="text"],
-        #userForm input[type="date"],
-        #userForm select {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        #userForm input:focus,
-        #userForm select:focus {
-            border-color: #4CAF50;
-        }
-
-        #userForm button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 18px;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            margin-top: 20px;
-        }
-
-        #userForm button:hover {
-            background-color: #43A047;
-            transform: translateY(-2px);
-        }
-
-        #userForm button:active {
-            transform: translateY(0);
-        }
-
-        /* Estilos del botón de reporte */
-        #reportButton {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s, transform 0.2s;
-            z-index: 1000;
-        }
-
-        #reportButton:hover {
-            background-color: #0056b3;
-            transform: translateY(-3px);
-        }
-
-        #reportButton:active {
-            transform: translateY(0);
-        }
-
-        /* Estilos adicionales */
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 28px;
-                margin-top: 20px;
-            }
-
-            #userForm {
-                padding: 20px;
-            }
-
-            #userForm button {
-                font-size: 16px;
-            }
-
-            #reportButton {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-            }
-        }
-    </style>
-</head>
-<body>
     <h1>Registro de Usuarios</h1>
+
+    <!-- Campo para pegar el mensaje del cliente -->
+    <textarea id="inputMessage" rows="6" placeholder="Pega aquí el mensaje del cliente" style="width: 100%;"></textarea>
+    <button type="button" onclick="extractData()">Extraer Datos</button>
+
     <form id="userForm">
         <input type="text" id="userName" placeholder="Nombre del Usuario" required>
+        <input type="email" id="userEmail" placeholder="Correo Electrónico" required>
+
+        <!-- Campo para contraseña con botón para mostrar/ocultar -->
+        <div class="password-container">
+            <input type="password" id="userPassword" placeholder="Clave del Usuario" required>
+            <i class="fas fa-eye" onclick="togglePasswordVisibility()"></i>
+        </div>
+
         <input type="date" id="startDate" required>
         <input type="date" id="endDate" required>
-        <select id="streamingProfile" required>
-            <option value="" disabled selected>Selecciona un Perfil de Streaming</option>
-            <option value="Netflix">Netflix</option>
-            <option value="Disney">Disney</option>
-            <option value="HBO Max">HBO Max</option>
-            <option value="Amazon Prime">Amazon Prime</option>
-            <option value="Spotify">Spotify</option>
-            <option value="Vix">VIX</option>
-            <option value="IPTV">IPTV</option>
-            <option value="Crunchyroll">Crunchyroll</option>
-            <option value="TV360">TV360</option>
-            <option value="Paramount">Paramount</option>
-            <option value="Youtuve Premiun">Youtuve Premiun</option>
-            <option value="Prime Video">Prime Video</option>
-            <option value="Canva Pro">Canva Pro</option>
-            <option value="Directivi Go">Directivi Go</option>
-        </select>
+
+        <!-- Campo de texto para el perfil de streaming -->
+        <input type="text" id="streamingProfile" placeholder="Perfil de Streaming" readonly>
+
+        <!-- Campo para el PIN -->
+        <input type="text" id="userPin" placeholder="PIN" readonly>
+
+        <!-- Campo para el nombre de la cuenta (Pantalla NETFLIX) -->
+        <input type="text" id="accountName" placeholder="Nombre de la Cuenta" readonly>
+
         <button type="submit">Registrar Usuario</button>
     </form>
 
@@ -450,16 +298,140 @@
         <i class="fas fa-chart-bar"></i>
     </button>
 
-   
-</body>
-</html>
-
-
     <script>
         function toggleMenu() {
             const responsiveMenu = document.getElementById('responsiveMenu');
             responsiveMenu.style.display = responsiveMenu.style.display === 'flex' ? 'none' : 'flex';
         }
+
+        function extractData() {
+            const message = document.getElementById('inputMessage').value;
+
+            const nameRegex = /^Hola,\s([a-zA-Z]+)/;
+            const userRegex = /USUARIO:\s*([a-zA-Z0-9@._-]+)/;
+            const passRegex = /CONTRASEÑA:\s*([^\s]+)/;
+            const profileRegex = /PERFIL\s*([\d]+)/;
+            const pinRegex = /PIN:\s*(\d+)/;
+            const accountNameRegex = /Pantalla\s*([a-zA-Z]+)/;  // Extraer el nombre de la cuenta (Netflix, etc)
+            const dateRegex = /Fecha de corte:\s*(\d{2}-\d{2}-\d{4})/;
+
+            const nameMatch = message.match(nameRegex);
+            const userMatch = message.match(userRegex);
+            const passMatch = message.match(passRegex);
+            const profileMatch = message.match(profileRegex);
+            const pinMatch = message.match(pinRegex);
+            const accountNameMatch = message.match(accountNameRegex);
+            const dateMatch = message.match(dateRegex);
+
+            if (nameMatch) {
+                document.getElementById('userName').value = nameMatch[1];
+            }
+
+            if (userMatch) {
+                document.getElementById('userEmail').value = userMatch[1];
+            }
+
+            if (passMatch) {
+                document.getElementById('userPassword').value = passMatch[1];
+            }
+
+            if (profileMatch) {
+                document.getElementById('streamingProfile').value = `Perfil ${profileMatch[1]}`;
+            }
+
+            if (pinMatch) {
+                document.getElementById('userPin').value = pinMatch[1];
+            }
+
+            if (accountNameMatch) {
+                document.getElementById('accountName').value = accountNameMatch[1];
+            }
+
+            if (dateMatch) {
+                const [day, month, year] = dateMatch[1].split('-');
+                document.getElementById('endDate').value = `${year}-${month}-${day}`;
+                const startDate = new Date(year, month - 2, day);
+                const startMonth = (startDate.getMonth() + 1).toString().padStart(2, '0');
+                const startDay = startDate.getDate().toString().padStart(2, '0');
+                document.getElementById('startDate').value = `${startDate.getFullYear()}-${startMonth}-${startDay}`;
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('userPassword');
+            const passwordIcon = document.querySelector('.password-container i');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            }
+        }
     </script>
+
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    
+    // Configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
+        authDomain: "guardar-fotos-ec316.firebaseapp.com",
+        projectId: "guardar-fotos-ec316",
+        storageBucket: "guardar-fotos-ec316.appspot.com",
+        messagingSenderId: "529201655026",
+        appId: "1:529201655026:web:f10e873d825a72b5d8b46b",
+        measurementId: "G-SMEHYGBPRR"
+    };
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const firestore = getFirestore(app);
+    
+    // Al enviar el formulario, se guardarán los datos en Firestore
+    document.getElementById('userForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Obtén los valores del formulario
+        const name = document.getElementById('userName').value;
+        const email = document.getElementById('userEmail').value;
+        const password = document.getElementById('userPassword').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const profile = document.getElementById('streamingProfile').value;
+        const pin = document.getElementById('userPin').value;
+        const accountName = document.getElementById('accountName').value;
+
+        try {
+            // Agregar los datos a la colección "users" en Firestore
+            await addDoc(collection(firestore, "users"), {
+                name: name,
+                email: email,
+                password: password,
+                startDate: startDate,
+                endDate: endDate,
+                profile: profile,
+                pin: pin,
+                accountName: accountName
+            });
+
+            // Mensaje de éxito
+            alert("¡Usuario registrado con éxito!");
+            
+            // Limpiar los campos del formulario
+            document.getElementById('userForm').reset();  // Esta línea resetea todos los campos del formulario
+        } catch (error) {
+            // Manejo de errores
+            console.error("Error al registrar el usuario: ", error);
+            alert("Hubo un error al registrar el usuario.");
+        }
+    });
+</script>
+
+
 </body>
 </html>

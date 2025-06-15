@@ -8,104 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getFirestore, collection, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
-            authDomain: "guardar-fotos-ec316.firebaseapp.com",
-            projectId: "guardar-fotos-ec316",
-            storageBucket: "guardar-fotos-ec316.appspot.com",
-            messagingSenderId: "529201655026",
-            appId: "1:529201655026:web:f10e873d825a72b5d8b46b",
-            measurementId: "G-SMEHYGBPRR"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
-
-        // Función para formatear las fechas
-        function formatDate(dateString) {
-            const [year, month, day] = dateString.split('-');
-            return `${day}-${month}-${year}`;
-        }
-
-        window.addEventListener('load', async () => {
-            const tableBody = document.getElementById('userTableBody');
-
-            try {
-                const querySnapshot = await getDocs(collection(firestore, 'users'));
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const formattedStartDate = formatDate(data.startDate);
-                    const formattedEndDate = formatDate(data.endDate);
-                    const row = document.createElement('tr');
-
-                    row.innerHTML = `
-                        <td>${data.name}</td>
-                        <td>${formattedStartDate}</td>
-                        <td>${formattedEndDate}</td>
-                        <td>${data.profile}</td>
-                        <td class="actions">
-                            <button class="renew-btn" onclick="openRenewModal('${doc.id}', '${data.startDate}', '${data.endDate}')"><i class="fas fa-sync-alt"></i></button>
-                            <button class="delete-btn" onclick="deleteUser('${doc.id}')"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    `;
-
-                    tableBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error("Error al obtener los usuarios:", error);
-                alert("Error al cargar los usuarios. Inténtalo más tarde.");
-            }
-        });
-
-        window.deleteUser = async function(id) {
-            const confirmation = confirm("¿Estás seguro de que quieres eliminar este usuario?");
-            if (confirmation) {
-                try {
-                    await deleteDoc(doc(firestore, 'users', id));
-                    alert("Usuario eliminado con éxito.");
-                    location.reload();
-                } catch (error) {
-                    console.error("Error al eliminar el usuario:", error);
-                    alert("No se pudo eliminar el usuario.");
-                }
-            }
-        };
-
-        window.openRenewModal = function(id, currentStartDate, currentEndDate) {
-            document.getElementById('renewModal').style.display = 'flex';
-            document.getElementById('renewStartDate').value = currentStartDate;
-            document.getElementById('renewEndDate').value = currentEndDate;
-            document.getElementById('saveRenewBtn').onclick = function() { renewSubscription(id); };
-        };
-
-        window.renewSubscription = async function(id) {
-            const newStartDate = document.getElementById('renewStartDate').value;
-            const newEndDate = document.getElementById('renewEndDate').value;
-
-            if (newStartDate && newEndDate) {
-                try {
-                    const userRef = doc(firestore, 'users', id);
-                    await updateDoc(userRef, { startDate: newStartDate, endDate: newEndDate });
-                    alert("¡Inscripción renovada con éxito!");
-                    closeRenewModal();
-                    location.reload();
-                } catch (error) {
-                    console.error("Error al renovar la inscripción:", error);
-                    alert("No se pudo renovar la inscripción.");
-                }
-            } else {
-                alert("Por favor, selecciona ambas fechas.");
-            }
-        };
-
-        window.closeRenewModal = function() {
-            document.getElementById('renewModal').style.display = 'none';
-        };
-    </script>
     <style>
         /* Estilos generales */
         body {
@@ -127,9 +29,14 @@
         }
 
         /* Estilos de la tabla */
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+            max-width: 1200px;
+        }
+
         table {
             width: 100%;
-            max-width: 1000px;
             border-collapse: collapse;
             margin-bottom: 20px;
             background-color: white;
@@ -161,7 +68,7 @@
             gap: 10px;
         }
 
-        .renew-btn, .delete-btn {
+        .edit-btn, .renew-btn, .delete-btn {
             padding: 8px 12px;
             border: none;
             border-radius: 8px;
@@ -169,6 +76,14 @@
             font-size: 16px;
             transition: background-color 0.2s;
             color: white;
+        }
+
+        .edit-btn {
+            background-color: #007bff;
+        }
+
+        .edit-btn:hover {
+            background-color: #0056b3;
         }
 
         .renew-btn {
@@ -209,6 +124,91 @@
 
         #backButton:hover {
             background-color: #0056b3;
+        }
+
+        /* Estilos para el modal de edición */
+        #editModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px 20px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-content h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content label {
+            display: block;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="email"],
+        .modal-content input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            margin: 0 5px;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        #saveEditBtn {
+            background-color: #28a745;
+        }
+
+        #saveEditBtn:hover {
+            background-color: #218838;
+        }
+
+        #cancelEditBtn {
+            background-color: #dc3545;
+        }
+
+        #cancelEditBtn:hover {
+            background-color: #c82333;
         }
 
         /* Estilos para el modal de renovación */
@@ -345,24 +345,51 @@
 <body>
     <h1>Reporte de Usuarios</h1>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Inicio</th>
-                <th>Fin</th>
-                <th>Perfil</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="userTableBody">
-            <!-- Los usuarios se cargarán aquí dinámicamente -->
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Clave</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Perfil</th>
+                    <th>PIN</th>
+                    <th>Cuenta</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <!-- Los usuarios se cargarán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </div>
 
     <button id="backButton" onclick="window.location.href='usuario.html'">
         <i class="fas fa-arrow-left"></i> Volver
     </button>
+
+    <!-- Modal para edición de usuario -->
+    <div id="editModal">
+        <div class="modal-content">
+            <h2>Editar Usuario</h2>
+            <label for="editName">Nombre:</label>
+            <input type="text" id="editName" required>
+            <label for="editEmail">Correo:</label>
+            <input type="email" id="editEmail" required>
+            <label for="editPassword">Clave:</label>
+            <input type="password" id="editPassword" required>
+            <label for="editPin">PIN:</label>
+            <input type="text" id="editPin" required>
+            <label for="editAccountName">Cuenta:</label>
+            <input type="text" id="editAccountName" required>
+            <div class="modal-buttons">
+                <button id="saveEditBtn">Guardar</button>
+                <button id="cancelEditBtn" onclick="closeEditModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal para renovación de fechas -->
     <div id="renewModal">
@@ -378,5 +405,146 @@
             </div>
         </div>
     </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
+            authDomain: "guardar-fotos-ec316.firebaseapp.com",
+            projectId: "guardar-fotos-ec316",
+            storageBucket: "guardar-fotos-ec316.appspot.com",
+            messagingSenderId: "529201655026",
+            appId: "1:529201655026:web:f10e873d825a72b5d8b46b",
+            measurementId: "G-SMEHYGBPRR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+
+        // Función para formatear las fechas
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}-${month}-${year}`;
+        }
+
+        window.addEventListener('load', async () => {
+            const tableBody = document.getElementById('userTableBody');
+
+            try {
+                const querySnapshot = await getDocs(collection(firestore, 'users'));
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const formattedStartDate = formatDate(data.startDate);
+                    const formattedEndDate = formatDate(data.endDate);
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${data.name}</td>
+                        <td>${data.email}</td>
+                        <td>${data.password}</td>
+                        <td>${formattedStartDate}</td>
+                        <td>${formattedEndDate}</td>
+                        <td>${data.profile}</td>
+                        <td>${data.pin}</td>
+                        <td>${data.accountName}</td>
+                        <td class="actions">
+                            <button class="edit-btn" onclick="openEditModal('${doc.id}', '${data.name}', '${data.email}', '${data.password}', '${data.pin}', '${data.accountName}')"><i class="fas fa-edit"></i> Editar</button>
+                            <button class="renew-btn" onclick="openRenewModal('${doc.id}', '${data.startDate}', '${data.endDate}')"><i class="fas fa-sync-alt"></i> Renovar</button>
+                            <button class="delete-btn" onclick="deleteUser('${doc.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error al obtener los usuarios:", error);
+                alert("Error al cargar los usuarios. Inténtalo más tarde.");
+            }
+        });
+
+        window.deleteUser = async function(id) {
+            const confirmation = confirm("¿Estás seguro de que quieres eliminar este usuario?");
+            if (confirmation) {
+                try {
+                    await deleteDoc(doc(firestore, 'users', id));
+                    alert("Usuario eliminado con éxito.");
+                    location.reload();
+                } catch (error) {
+                    console.error("Error al eliminar el usuario:", error);
+                    alert("No se pudo eliminar el usuario.");
+                }
+            }
+        };
+
+        window.openEditModal = function(id, name, email, password, pin, accountName) {
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editName').value = name;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editPassword').value = password;
+            document.getElementById('editPin').value = pin;
+            document.getElementById('editAccountName').value = accountName;
+            document.getElementById('saveEditBtn').onclick = function() { editUser(id); };
+        };
+
+        window.editUser = async function(id) {
+            const newName = document.getElementById('editName').value;
+            const newEmail = document.getElementById('editEmail').value;
+            const newPassword = document.getElementById('editPassword').value;
+            const newPin = document.getElementById('editPin').value;
+            const newAccountName = document.getElementById('editAccountName').value;
+
+            if (newName && newEmail && newPassword) {
+                try {
+                    const userRef = doc(firestore, 'users', id);
+                    await updateDoc(userRef, { name: newName, email: newEmail, password: newPassword, pin: newPin, accountName: newAccountName });
+                    alert("¡Usuario actualizado con éxito!");
+                    closeEditModal();
+                    location.reload();
+                } catch (error) {
+                    console.error("Error al actualizar el usuario:", error);
+                    alert("No se pudo actualizar el usuario.");
+                }
+            } else {
+                alert("Por favor, completa todos los campos.");
+            }
+        };
+
+        window.openRenewModal = function(id, currentStartDate, currentEndDate) {
+            document.getElementById('renewModal').style.display = 'flex';
+            document.getElementById('renewStartDate').value = currentStartDate;
+            document.getElementById('renewEndDate').value = currentEndDate;
+            document.getElementById('saveRenewBtn').onclick = function() { renewSubscription(id); };
+        };
+
+        window.renewSubscription = async function(id) {
+            const newStartDate = document.getElementById('renewStartDate').value;
+            const newEndDate = document.getElementById('renewEndDate').value;
+
+            if (newStartDate && newEndDate) {
+                try {
+                    const userRef = doc(firestore, 'users', id);
+                    await updateDoc(userRef, { startDate: newStartDate, endDate: newEndDate });
+                    alert("¡Inscripción renovada con éxito!");
+                    closeRenewModal();
+                    location.reload();
+                } catch (error) {
+                    console.error("Error al renovar la inscripción:", error);
+                    alert("No se pudo renovar la inscripción.");
+                }
+            } else {
+                alert("Por favor, selecciona ambas fechas.");
+            }
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').style.display = 'none';
+        };
+
+        window.closeRenewModal = function() {
+            document.getElementById('renewModal').style.display = 'none';
+        };
+    </script>
 </body>
 </html>

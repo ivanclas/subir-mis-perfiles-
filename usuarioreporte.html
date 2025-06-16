@@ -1,550 +1,247 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Usuarios</title>
-    <!-- Importar Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Iconos de Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <style>
-        /* Estilos generales */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Reporte de Usuarios</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins,sans-serif;background:#f4f6f9;color:#333;padding:1rem}
+h1{text-align:center;color:#4CAF50;margin-bottom:1rem;font-size:1.75rem}
+#backButton{background:#007bff;color:#fff;border:none;padding:.6rem 1.2rem;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;margin-bottom:1rem}
+#backButton:hover{opacity:.9}
+.table-container{width:100%;max-width:1200px;margin:0 auto 1rem;overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{padding:.7rem;border-bottom:1px solid #eee;font-size:.95rem;word-break:break-word}
+th{background:#4CAF50;color:#fff;text-align:left}
+tr:hover{background:#f1f1f1}
+.actions{display:flex;flex-wrap:wrap;gap:.4rem}
+.btn{border:none;border-radius:6px;color:#fff;font-size:.85rem;cursor:pointer;padding:.4rem .8rem;display:inline-flex;align-items:center;gap:.3rem}
+.edit-btn{background:#007bff}.renew-btn{background:#28a745}.copy-btn{background:#555}.delete-btn{background:#dc3545}
+.btn:hover{opacity:.88}
 
-        h1 {
-            font-size: 28px;
-            color: #4CAF50;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
+/* responsive card-mode */
+@media(max-width:600px){
+  table,thead,tbody,th,tr,td{display:block}
+  thead{position:absolute;top:-9999px}
+  tr{margin-bottom:1rem;border:1px solid #ccc;border-radius:8px;overflow:hidden}
+  td{border:none;border-bottom:1px solid #eee;position:relative;padding-left:48%}
+  td::before{content:attr(data-label);position:absolute;left:0;top:0;width:45%;padding:.7rem;font-weight:600;white-space:nowrap}
+  .actions{justify-content:flex-end;padding:.5rem}
+}
 
-        /* Estilos de la tabla */
-        .table-container {
-            overflow-x: auto;
-            width: 100%;
-            max-width: 1200px;
-        }
+/* MODALES */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:1000}
+.modal-content{background:#fff;border-radius:8px;padding:1.5rem;width:90%;max-width:400px}
+.modal-content h2{margin-bottom:1rem;font-size:1.3rem}
+.modal-content label{margin:.5rem 0 .2rem;font-weight:600;font-size:.9rem}
+.modal-content input{width:100%;padding:.6rem;border:1px solid #ddd;border-radius:4px;font-size:.9rem}
+.password-container{position:relative}
+.password-container i{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);cursor:pointer;color:#777}
+.modal-buttons{display:flex;gap:.5rem;margin-top:1rem}
+.modal-buttons button{flex:1;padding:.6rem;border:none;border-radius:4px;color:#fff;font-weight:600;cursor:pointer}
+.save-btn{background:#28a745}.cancel-btn{background:#dc3545}
+</style>
+</head><body>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+<button id="backButton"><i class="fas fa-arrow-left"></i>Inicio</button>
+<h1>Reporte de Usuarios</h1>
 
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-            font-size: 16px;
-        }
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th><th>Correo</th><th>Clave</th>
+        <th>Inicio</th><th>Fin</th><th>Perfil</th>
+        <th>PIN</th><th>Cuenta</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+</div>
 
-        th {
-            background-color: #4CAF50;
-            color: white;
-            font-weight: 600;
-            font-size: 18px;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .edit-btn, .renew-btn, .delete-btn {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.2s;
-            color: white;
-        }
-
-        .edit-btn {
-            background-color: #007bff;
-        }
-
-        .edit-btn:hover {
-            background-color: #0056b3;
-        }
-
-        .renew-btn {
-            background-color: #28a745;
-        }
-
-        .renew-btn:hover {
-            background-color: #218838;
-        }
-
-        .delete-btn {
-            background-color: #dc3545;
-        }
-
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-
-        /* Estilos del botón de volver */
-        #backButton {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #backButton i {
-            font-size: 20px;
-        }
-
-        #backButton:hover {
-            background-color: #0056b3;
-        }
-
-        /* Estilos para el modal de edición */
-        #editModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 30px 20px;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .modal-content h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .modal-content label {
-            display: block;
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 5px;
-            text-align: left;
-        }
-
-        .modal-content input[type="text"],
-        .modal-content input[type="email"],
-        .modal-content input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .modal-buttons button {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            flex: 1;
-            margin: 0 5px;
-            color: white;
-            transition: background-color 0.2s;
-        }
-
-        #saveEditBtn {
-            background-color: #28a745;
-        }
-
-        #saveEditBtn:hover {
-            background-color: #218838;
-        }
-
-        #cancelEditBtn {
-            background-color: #dc3545;
-        }
-
-        #cancelEditBtn:hover {
-            background-color: #c82333;
-        }
-
-        /* Estilos para el modal de renovación */
-        #renewModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 30px 20px;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .modal-content h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .modal-content label {
-            display: block;
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 5px;
-            text-align: left;
-        }
-
-        .modal-content input[type="date"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .modal-buttons button {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            flex: 1;
-            margin: 0 5px;
-            color: white;
-            transition: background-color 0.2s;
-        }
-
-        #saveRenewBtn {
-            background-color: #28a745;
-        }
-
-        #saveRenewBtn:hover {
-            background-color: #218838;
-        }
-
-        #cancelRenewBtn {
-            background-color: #dc3545;
-        }
-
-        #cancelRenewBtn:hover {
-            background-color: #c82333;
-        }
-
-        /* Estilos responsivos */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 24px;
-            }
-
-            th, td {
-                padding: 12px;
-                font-size: 14px;
-            }
-
-            .modal-content h2 {
-                font-size: 22px;
-            }
-
-            .modal-content input[type="date"] {
-                font-size: 14px;
-            }
-
-            #backButton {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            th, td {
-                padding: 10px;
-                font-size: 12px;
-            }
-
-            .actions button {
-                font-size: 14px;
-            }
-
-            .modal-content h2 {
-                font-size: 20px;
-            }
-
-            .modal-content input[type="date"] {
-                font-size: 12px;
-            }
-
-            #backButton {
-                font-size: 14px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h1>Reporte de Usuarios</h1>
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Clave</th>
-                    <th>Inicio</th>
-                    <th>Fin</th>
-                    <th>Perfil</th>
-                    <th>PIN</th>
-                    <th>Cuenta</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="userTableBody">
-                <!-- Los usuarios se cargarán aquí dinámicamente -->
-            </tbody>
-        </table>
+<!-- MODAL EDITAR -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <h2>Editar usuario</h2>
+    <label>Nombre</label><input id="editName" type="text">
+    <label>Correo</label><input id="editEmail" type="email">
+    <label>Clave</label>
+    <div class="password-container">
+      <input id="editPassword" type="password"><i id="eye" class="fas fa-eye"></i>
     </div>
-
-    <button id="backButton" onclick="window.location.href='usuario.html'">
-        <i class="fas fa-arrow-left"></i> Volver
-    </button>
-
-    <!-- Modal para edición de usuario -->
-    <div id="editModal">
-        <div class="modal-content">
-            <h2>Editar Usuario</h2>
-            <label for="editName">Nombre:</label>
-            <input type="text" id="editName" required>
-            <label for="editEmail">Correo:</label>
-            <input type="email" id="editEmail" required>
-            <label for="editPassword">Clave:</label>
-            <input type="password" id="editPassword" required>
-            <label for="editPin">PIN:</label>
-            <input type="text" id="editPin" required>
-            <label for="editAccountName">Cuenta:</label>
-            <input type="text" id="editAccountName" required>
-            <div class="modal-buttons">
-                <button id="saveEditBtn">Guardar</button>
-                <button id="cancelEditBtn" onclick="closeEditModal()">Cancelar</button>
-            </div>
-        </div>
+    <label>PIN</label><input id="editPin" type="text">
+    <label>Cuenta</label><input id="editAccount" type="text">
+    <div class="modal-buttons">
+      <button id="saveEdit" class="save-btn">Guardar</button>
+      <button id="cancelEdit" class="cancel-btn">Cancelar</button>
     </div>
+  </div>
+</div>
 
-    <!-- Modal para renovación de fechas -->
-    <div id="renewModal">
-        <div class="modal-content">
-            <h2>Renovar Inscripción</h2>
-            <label for="renewStartDate">Nueva Fecha de Inicio:</label>
-            <input type="date" id="renewStartDate" required>
-            <label for="renewEndDate">Nueva Fecha de Culminación:</label>
-            <input type="date" id="renewEndDate" required>
-            <div class="modal-buttons">
-                <button id="saveRenewBtn">Guardar</button>
-                <button id="cancelRenewBtn" onclick="closeRenewModal()">Cancelar</button>
-            </div>
-        </div>
+<!-- MODAL RENOVAR -->
+<div id="renewModal" class="modal">
+  <div class="modal-content">
+    <h2>Renovar inscripción</h2>
+    <label>Inicio</label><input id="renewStart" type="date">
+    <label>Fin</label><input id="renewEnd" type="date">
+    <div class="modal-buttons">
+      <button id="saveRenew" class="save-btn">Guardar</button>
+      <button id="cancelRenew" class="cancel-btn">Cancelar</button>
     </div>
+  </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getFirestore, collection, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+<script type="module">
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { getFirestore,
+         collection,getDocs,
+         deleteDoc,doc,updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
-            authDomain: "guardar-fotos-ec316.firebaseapp.com",
-            projectId: "guardar-fotos-ec316",
-            storageBucket: "guardar-fotos-ec316.appspot.com",
-            messagingSenderId: "529201655026",
-            appId: "1:529201655026:web:f10e873d825a72b5d8b46b",
-            measurementId: "G-SMEHYGBPRR"
-        };
+const firebaseConfig={apiKey:"AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
+authDomain:"guardar-fotos-ec316.firebaseapp.com",projectId:"guardar-fotos-ec316",
+storageBucket:"guardar-fotos-ec316.appspot.com",messagingSenderId:"529201655026",
+appId:"1:529201655026:web:f10e873d825a72b5d8b46b"};
+initializeApp(firebaseConfig);
+const db=getFirestore();
 
-        const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
+const tbody   = document.getElementById("userTableBody");
+const editM   = document.getElementById("editModal");
+const renewM  = document.getElementById("renewModal");
+let currentId = null;
 
-        // Función para formatear las fechas
-        function formatDate(dateString) {
-            const [year, month, day] = dateString.split('-');
-            return `${day}-${month}-${year}`;
-        }
+const format = d=>{const[a,b,c]=d.split("-");return`${c}-${b}-${a}`};
 
-        window.addEventListener('load', async () => {
-            const tableBody = document.getElementById('userTableBody');
+async function load(){
+  tbody.textContent="";
+  (await getDocs(collection(db,"users"))).forEach(s=>{
+    const u=s.data(); const tr=document.createElement("tr");
+    tr.dataset.id=s.id;
+    tr.innerHTML=`
+      <td data-label="Nombre">${u.name}</td>
+      <td data-label="Correo">${u.email}</td>
+      <td data-label="Clave">${u.password}</td>
+      <td data-label="Inicio">${format(u.startDate)}</td>
+      <td data-label="Fin">${format(u.endDate)}</td>
+      <td data-label="Perfil">${u.profile}</td>
+      <td data-label="PIN">${u.pin}</td>
+      <td data-label="Cuenta">${u.accountName}</td>
+      <td data-label="Acciones" class="actions">
+        <button class="btn edit-btn"   data-act="edit"><i class="fas fa-edit"></i></button>
+        <button class="btn renew-btn"  data-act="renew"><i class="fas fa-sync-alt"></i></button>
+        <button class="btn copy-btn"   data-act="copy"><i class="fas fa-copy"></i></button>
+        <button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+load();
 
-            try {
-                const querySnapshot = await getDocs(collection(firestore, 'users'));
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const formattedStartDate = formatDate(data.startDate);
-                    const formattedEndDate = formatDate(data.endDate);
-                    const row = document.createElement('tr');
+/*  DELEGACIÓN DE BOTONES  */
+tbody.addEventListener("click",e=>{
+  const btn=e.target.closest("button");
+  if(!btn)return;
+  const tr=btn.closest("tr");
+  const u=tr.children;
+  currentId=tr.dataset.id;
+  const data={
+    name       : u[0].textContent,
+    email      : u[1].textContent,
+    password   : u[2].textContent,
+    startDate  : u[3].textContent.split("-").reverse().join("-"),
+    endDate    : u[4].textContent.split("-").reverse().join("-"),
+    profile    : u[5].textContent,
+    pin        : u[6].textContent,
+    account    : u[7].textContent
+  };
+  switch(btn.dataset.act){
+    case "edit":
+      openEdit(data);break;
+    case "renew":
+      openRenew(data);break;
+    case "copy":
+      copyProfile(data);break;
+    case "del":
+      delUser();break;
+  }
+});
 
-                    row.innerHTML = `
-                        <td>${data.name}</td>
-                        <td>${data.email}</td>
-                        <td>${data.password}</td>
-                        <td>${formattedStartDate}</td>
-                        <td>${formattedEndDate}</td>
-                        <td>${data.profile}</td>
-                        <td>${data.pin}</td>
-                        <td>${data.accountName}</td>
-                        <td class="actions">
-                            <button class="edit-btn" onclick="openEditModal('${doc.id}', '${data.name}', '${data.email}', '${data.password}', '${data.pin}', '${data.accountName}')"><i class="fas fa-edit"></i> Editar</button>
-                            <button class="renew-btn" onclick="openRenewModal('${doc.id}', '${data.startDate}', '${data.endDate}')"><i class="fas fa-sync-alt"></i> Renovar</button>
-                            <button class="delete-btn" onclick="deleteUser('${doc.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
-                        </td>
-                    `;
+/*  EDITAR  */
+function openEdit(d){
+  editM.style.display="flex";
+  editM.querySelector("#editName").value     = d.name;
+  editM.querySelector("#editEmail").value    = d.email;
+  editM.querySelector("#editPassword").value = d.password;
+  editM.querySelector("#editPin").value      = d.pin;
+  editM.querySelector("#editAccount").value  = d.account;
+}
+document.getElementById("saveEdit").onclick=async()=>{
+  await updateDoc(doc(db,"users",currentId),{
+    name:editM.querySelector("#editName").value,
+    email:editM.querySelector("#editEmail").value,
+    password:editM.querySelector("#editPassword").value,
+    pin:editM.querySelector("#editPin").value,
+    accountName:editM.querySelector("#editAccount").value
+  });
+  closeEditModal(); load();
+};
+const eye=document.getElementById("eye");
+eye.onclick=()=>{
+  const fld=document.getElementById("editPassword");
+  fld.type=fld.type==="password"?"text":"password";
+  eye.classList.toggle("fa-eye-slash");
+};
+function closeEditModal(){editM.style.display="none";}
+document.getElementById("cancelEdit").onclick=closeEditModal;
 
-                    tableBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error("Error al obtener los usuarios:", error);
-                alert("Error al cargar los usuarios. Inténtalo más tarde.");
-            }
-        });
+/*  RENOVAR  */
+function openRenew(d){
+  renewM.style.display="flex";
+  renewM.querySelector("#renewStart").value=d.startDate;
+  renewM.querySelector("#renewEnd").value  =d.endDate;
+}
+document.getElementById("saveRenew").onclick=async()=>{
+  await updateDoc(doc(db,"users",currentId),{
+    startDate:renewM.querySelector("#renewStart").value,
+    endDate:renewM.querySelector("#renewEnd").value
+  });
+  closeRenewModal(); load();
+};
+function closeRenewModal(){renewM.style.display="none";}
+document.getElementById("cancelRenew").onclick=closeRenewModal;
 
-        window.deleteUser = async function(id) {
-            const confirmation = confirm("¿Estás seguro de que quieres eliminar este usuario?");
-            if (confirmation) {
-                try {
-                    await deleteDoc(doc(firestore, 'users', id));
-                    alert("Usuario eliminado con éxito.");
-                    location.reload();
-                } catch (error) {
-                    console.error("Error al eliminar el usuario:", error);
-                    alert("No se pudo eliminar el usuario.");
-                }
-            }
-        };
+/*  BORRAR  */
+async function delUser(){
+  if(!confirm("¿Eliminar este usuario?"))return;
+  await deleteDoc(doc(db,"users",currentId));
+  load();
+}
 
-        window.openEditModal = function(id, name, email, password, pin, accountName) {
-            document.getElementById('editModal').style.display = 'flex';
-            document.getElementById('editName').value = name;
-            document.getElementById('editEmail').value = email;
-            document.getElementById('editPassword').value = password;
-            document.getElementById('editPin').value = pin;
-            document.getElementById('editAccountName').value = accountName;
-            document.getElementById('saveEditBtn').onclick = function() { editUser(id); };
-        };
+/*  COPIAR PERFIL  */
+function copyProfile(d){
+  const msg=`Hola, ${d.name}. Tu Pantalla ${d.account} está activa,\n`+
+            `👤 USUARIO: ${d.email}\n🔐 CONTRASEÑA: ${d.password}\n`+
+            `📺: PERFIL ${d.profile}\n🔒 PIN: ${d.pin}\n`+
+            `📅 Fecha de corte: ${format(d.endDate)}\n\n`+
+            `Condiciones del servicio:\n`+
+            `1.-No modifique ninguna información de la cuenta\n`+
+            `2.-No puede estar en 2 o más dispositivos simultáneamente\n`+
+            `3.-No agregue ni elimine ningún perfil\n`+
+            `4.-Este es un producto digital. Después de la compra, no se puede\n`+
+            `   hacer ningún reembolso. Solo garantía de reemplazo.\n\n`+
+            `Nota: Si viola algunas de estas condiciones la garantía será suspendida\n`+
+            `Muchas gracias por su compra`;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(msg).then(()=>alert("Perfil copiado")).catch(()=>alert("No se pudo copiar"));
+  }else{
+    prompt("Copia el texto:",msg);
+  }
+}
 
-        window.editUser = async function(id) {
-            const newName = document.getElementById('editName').value;
-            const newEmail = document.getElementById('editEmail').value;
-            const newPassword = document.getElementById('editPassword').value;
-            const newPin = document.getElementById('editPin').value;
-            const newAccountName = document.getElementById('editAccountName').value;
-
-            if (newName && newEmail && newPassword) {
-                try {
-                    const userRef = doc(firestore, 'users', id);
-                    await updateDoc(userRef, { name: newName, email: newEmail, password: newPassword, pin: newPin, accountName: newAccountName });
-                    alert("¡Usuario actualizado con éxito!");
-                    closeEditModal();
-                    location.reload();
-                } catch (error) {
-                    console.error("Error al actualizar el usuario:", error);
-                    alert("No se pudo actualizar el usuario.");
-                }
-            } else {
-                alert("Por favor, completa todos los campos.");
-            }
-        };
-
-        window.openRenewModal = function(id, currentStartDate, currentEndDate) {
-            document.getElementById('renewModal').style.display = 'flex';
-            document.getElementById('renewStartDate').value = currentStartDate;
-            document.getElementById('renewEndDate').value = currentEndDate;
-            document.getElementById('saveRenewBtn').onclick = function() { renewSubscription(id); };
-        };
-
-        window.renewSubscription = async function(id) {
-            const newStartDate = document.getElementById('renewStartDate').value;
-            const newEndDate = document.getElementById('renewEndDate').value;
-
-            if (newStartDate && newEndDate) {
-                try {
-                    const userRef = doc(firestore, 'users', id);
-                    await updateDoc(userRef, { startDate: newStartDate, endDate: newEndDate });
-                    alert("¡Inscripción renovada con éxito!");
-                    closeRenewModal();
-                    location.reload();
-                } catch (error) {
-                    console.error("Error al renovar la inscripción:", error);
-                    alert("No se pudo renovar la inscripción.");
-                }
-            } else {
-                alert("Por favor, selecciona ambas fechas.");
-            }
-        };
-
-        window.closeEditModal = function() {
-            document.getElementById('editModal').style.display = 'none';
-        };
-
-        window.closeRenewModal = function() {
-            document.getElementById('renewModal').style.display = 'none';
-        };
-    </script>
+/* botón inicio */
+document.getElementById("backButton").onclick=()=>location.href="index.html";
+</script>
 </body>
 </html>

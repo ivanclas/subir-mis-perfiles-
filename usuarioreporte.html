@@ -1,247 +1,273 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Reporte de Usuarios</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Poppins,sans-serif;background:#f4f6f9;color:#333;padding:1rem}
-h1{text-align:center;color:#4CAF50;margin-bottom:1rem;font-size:1.75rem}
-#backButton{background:#007bff;color:#fff;border:none;padding:.6rem 1.2rem;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;margin-bottom:1rem}
-#backButton:hover{opacity:.9}
-.table-container{width:100%;max-width:1200px;margin:0 auto 1rem;overflow-x:auto}
-table{width:100%;border-collapse:collapse;background:#fff}
-th,td{padding:.7rem;border-bottom:1px solid #eee;font-size:.95rem;word-break:break-word}
-th{background:#4CAF50;color:#fff;text-align:left}
-tr:hover{background:#f1f1f1}
-.actions{display:flex;flex-wrap:wrap;gap:.4rem}
-.btn{border:none;border-radius:6px;color:#fff;font-size:.85rem;cursor:pointer;padding:.4rem .8rem;display:inline-flex;align-items:center;gap:.3rem}
-.edit-btn{background:#007bff}.renew-btn{background:#28a745}.copy-btn{background:#555}.delete-btn{background:#dc3545}
-.btn:hover{opacity:.88}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Reporte de Usuarios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <style>
+    /* RESET & TIPO */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Poppins,sans-serif;background:#f4f6f9;color:#333;padding:1rem}
+    h1{text-align:center;color:#4CAF50;margin-bottom:1rem;font-size:1.75rem}
+    #backButton{background:#007bff;color:#fff;border:none;padding:.6rem 1.2rem;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;margin-bottom:1rem}
+    #backButton:hover{opacity:.9}
 
-/* responsive card-mode */
-@media(max-width:600px){
-  table,thead,tbody,th,tr,td{display:block}
-  thead{position:absolute;top:-9999px}
-  tr{margin-bottom:1rem;border:1px solid #ccc;border-radius:8px;overflow:hidden}
-  td{border:none;border-bottom:1px solid #eee;position:relative;padding-left:48%}
-  td::before{content:attr(data-label);position:absolute;left:0;top:0;width:45%;padding:.7rem;font-weight:600;white-space:nowrap}
-  .actions{justify-content:flex-end;padding:.5rem}
-}
+    .table-container{width:100%;max-width:1200px;margin:0 auto 1rem;overflow-x:auto}
+    table{width:100%;border-collapse:collapse;background:#fff}
+    th,td{padding:.7rem;border-bottom:1px solid #eee;font-size:.95rem;word-break:break-word}
+    th{background:#4CAF50;color:#fff;text-align:left}
+    tr:hover{background:#f1f1f1}
+    tr.expired td{color:#c0392b}            /* Filas vencidas en rojo */
 
-/* MODALES */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:1000}
-.modal-content{background:#fff;border-radius:8px;padding:1.5rem;width:90%;max-width:400px}
-.modal-content h2{margin-bottom:1rem;font-size:1.3rem}
-.modal-content label{margin:.5rem 0 .2rem;font-weight:600;font-size:.9rem}
-.modal-content input{width:100%;padding:.6rem;border:1px solid #ddd;border-radius:4px;font-size:.9rem}
-.password-container{position:relative}
-.password-container i{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);cursor:pointer;color:#777}
-.modal-buttons{display:flex;gap:.5rem;margin-top:1rem}
-.modal-buttons button{flex:1;padding:.6rem;border:none;border-radius:4px;color:#fff;font-weight:600;cursor:pointer}
-.save-btn{background:#28a745}.cancel-btn{background:#dc3545}
-</style>
-</head><body>
+    .actions{display:flex;flex-wrap:wrap;gap:.4rem}
+    .btn{border:none;border-radius:6px;color:#fff;font-size:.85rem;cursor:pointer;padding:.4rem .8rem;display:inline-flex;align-items:center;gap:.3rem}
+    .edit-btn{background:#007bff}.renew-btn{background:#28a745}
+    .copy-btn{background:#555}.delete-btn{background:#dc3545}
+    .msg-btn{background:#25D366}             /* Verde WhatsApp */
+    .btn:hover{opacity:.88}
 
-<button id="backButton"><i class="fas fa-arrow-left"></i>Inicio</button>
-<h1>Reporte de Usuarios</h1>
+    /* responsive card-mode */
+    @media(max-width:600px){
+      table,thead,tbody,th,tr,td{display:block}
+      thead{position:absolute;top:-9999px}
+      tr{margin-bottom:1rem;border:1px solid #ccc;border-radius:8px;overflow:hidden}
+      td{border:none;border-bottom:1px solid #eee;position:relative;padding-left:48%}
+      td::before{content:attr(data-label);position:absolute;left:0;top:0;width:45%;padding:.7rem;font-weight:600;white-space:nowrap}
+      .actions{justify-content:flex-end;padding:.5rem}
+    }
 
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th><th>Correo</th><th>Clave</th>
-        <th>Inicio</th><th>Fin</th><th>Perfil</th>
-        <th>PIN</th><th>Cuenta</th><th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody"></tbody>
-  </table>
-</div>
+    /* MODALES */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:1000}
+    .modal-content{background:#fff;border-radius:8px;padding:1.5rem;width:90%;max-width:400px}
+    .modal-content h2{margin-bottom:1rem;font-size:1.3rem}
+    .modal-content label{margin:.5rem 0 .2rem;font-weight:600;font-size:.9rem}
+    .modal-content input{width:100%;padding:.6rem;border:1px solid #ddd;border-radius:4px;font-size:.9rem}
+    .password-container{position:relative}
+    .password-container i{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);cursor:pointer;color:#777}
+    .modal-buttons{display:flex;gap:.5rem;margin-top:1rem}
+    .modal-buttons button{flex:1;padding:.6rem;border:none;border-radius:4px;color:#fff;font-weight:600;cursor:pointer}
+    .save-btn{background:#28a745}.cancel-btn{background:#dc3545}
 
-<!-- MODAL EDITAR -->
-<div id="editModal" class="modal">
-  <div class="modal-content">
-    <h2>Editar usuario</h2>
-    <label>Nombre</label><input id="editName" type="text">
-    <label>Correo</label><input id="editEmail" type="email">
-    <label>Clave</label>
-    <div class="password-container">
-      <input id="editPassword" type="password"><i id="eye" class="fas fa-eye"></i>
-    </div>
-    <label>PIN</label><input id="editPin" type="text">
-    <label>Cuenta</label><input id="editAccount" type="text">
-    <div class="modal-buttons">
-      <button id="saveEdit" class="save-btn">Guardar</button>
-      <button id="cancelEdit" class="cancel-btn">Cancelar</button>
+  </style>
+</head>
+<body>
+
+  <button id="backButton"><i class="fas fa-arrow-left"></i> Inicio</button>
+  <h1>Reporte de Usuarios</h1>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th><th>Correo</th><th>Clave</th>
+          <th>Inicio</th><th>Fin</th><th>Perfil</th>
+          <th>PIN</th><th>Cuenta</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Modal Editar -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h2>Editar usuario</h2>
+      <label>Nombre</label><input id="editName" type="text">
+      <label>Correo</label><input id="editEmail" type="email">
+      <label>Clave</label>
+      <div class="password-container">
+        <input id="editPassword" type="password"><i id="eye" class="fas fa-eye"></i>
+      </div>
+      <label>PIN</label><input id="editPin" type="text">
+      <label>Cuenta</label><input id="editAccount" type="text">
+      <label>Teléfono</label><input id="editPhone" type="tel" placeholder="+51912345678">
+      <div class="modal-buttons">
+        <button id="saveEdit" class="save-btn">Guardar</button>
+        <button id="cancelEdit" class="cancel-btn">Cancelar</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL RENOVAR -->
-<div id="renewModal" class="modal">
-  <div class="modal-content">
-    <h2>Renovar inscripción</h2>
-    <label>Inicio</label><input id="renewStart" type="date">
-    <label>Fin</label><input id="renewEnd" type="date">
-    <div class="modal-buttons">
-      <button id="saveRenew" class="save-btn">Guardar</button>
-      <button id="cancelRenew" class="cancel-btn">Cancelar</button>
+  <!-- Modal Renovar -->
+  <div id="renewModal" class="modal">
+    <div class="modal-content">
+      <h2>Renovar inscripción</h2>
+      <label>Inicio</label><input id="renewStart" type="date">
+      <label>Fin</label><input id="renewEnd" type="date">
+      <div class="modal-buttons">
+        <button id="saveRenew" class="save-btn">Guardar</button>
+        <button id="cancelRenew" class="cancel-btn">Cancelar</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script type="module">
-import { initializeApp }       from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getFirestore,
-         collection,getDocs,
-         deleteDoc,doc,updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp }       from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getFirestore,
+             collection, getDocs,
+             deleteDoc, doc, updateDoc, getDoc }
+      from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-const firebaseConfig={apiKey:"AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
-authDomain:"guardar-fotos-ec316.firebaseapp.com",projectId:"guardar-fotos-ec316",
-storageBucket:"guardar-fotos-ec316.appspot.com",messagingSenderId:"529201655026",
-appId:"1:529201655026:web:f10e873d825a72b5d8b46b"};
-initializeApp(firebaseConfig);
-const db=getFirestore();
+    const firebaseConfig = {
+      apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
+      authDomain: "guardar-fotos-ec316.firebaseapp.com",
+      projectId: "guardar-fotos-ec316",
+      storageBucket: "guardar-fotos-ec316.appspot.com",
+      messagingSenderId: "529201655026",
+      appId: "1:529201655026:web:f10e873d825a72b5d8b46b"
+    };
+    initializeApp(firebaseConfig);
+    const db = getFirestore();
 
-const tbody   = document.getElementById("userTableBody");
-const editM   = document.getElementById("editModal");
-const renewM  = document.getElementById("renewModal");
-let currentId = null;
+    const tbody   = document.getElementById("userTableBody");
+    const editM   = document.getElementById("editModal");
+    const renewM  = document.getElementById("renewModal");
+    const eye     = document.getElementById("eye");
+    let currentId = null;
 
-const format = d=>{const[a,b,c]=d.split("-");return`${c}-${b}-${a}`};
+    // pasa "YYYY-MM-DD" → "DD-MM-YYYY"
+    const format = d => { const [y,m,day] = d.split("-"); return `${day}-${m}-${y}`; };
 
-async function load(){
-  tbody.textContent="";
-  (await getDocs(collection(db,"users"))).forEach(s=>{
-    const u=s.data(); const tr=document.createElement("tr");
-    tr.dataset.id=s.id;
-    tr.innerHTML=`
-      <td data-label="Nombre">${u.name}</td>
-      <td data-label="Correo">${u.email}</td>
-      <td data-label="Clave">${u.password}</td>
-      <td data-label="Inicio">${format(u.startDate)}</td>
-      <td data-label="Fin">${format(u.endDate)}</td>
-      <td data-label="Perfil">${u.profile}</td>
-      <td data-label="PIN">${u.pin}</td>
-      <td data-label="Cuenta">${u.accountName}</td>
-      <td data-label="Acciones" class="actions">
-        <button class="btn edit-btn"   data-act="edit"><i class="fas fa-edit"></i></button>
-        <button class="btn renew-btn"  data-act="renew"><i class="fas fa-sync-alt"></i></button>
-        <button class="btn copy-btn"   data-act="copy"><i class="fas fa-copy"></i></button>
-        <button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
-load();
+    // carga tabla
+    async function load(){
+      tbody.textContent = "";
+      const today = new Date(); today.setHours(0,0,0,0);
 
-/*  DELEGACIÓN DE BOTONES  */
-tbody.addEventListener("click",e=>{
-  const btn=e.target.closest("button");
-  if(!btn)return;
-  const tr=btn.closest("tr");
-  const u=tr.children;
-  currentId=tr.dataset.id;
-  const data={
-    name       : u[0].textContent,
-    email      : u[1].textContent,
-    password   : u[2].textContent,
-    startDate  : u[3].textContent.split("-").reverse().join("-"),
-    endDate    : u[4].textContent.split("-").reverse().join("-"),
-    profile    : u[5].textContent,
-    pin        : u[6].textContent,
-    account    : u[7].textContent
-  };
-  switch(btn.dataset.act){
-    case "edit":
-      openEdit(data);break;
-    case "renew":
-      openRenew(data);break;
-    case "copy":
-      copyProfile(data);break;
-    case "del":
-      delUser();break;
-  }
-});
+      const snap = await getDocs(collection(db,"users"));
+      snap.forEach(s => {
+        const u = s.data();
+        const end = new Date(u.endDate); end.setHours(0,0,0,0);
 
-/*  EDITAR  */
-function openEdit(d){
-  editM.style.display="flex";
-  editM.querySelector("#editName").value     = d.name;
-  editM.querySelector("#editEmail").value    = d.email;
-  editM.querySelector("#editPassword").value = d.password;
-  editM.querySelector("#editPin").value      = d.pin;
-  editM.querySelector("#editAccount").value  = d.account;
-}
-document.getElementById("saveEdit").onclick=async()=>{
-  await updateDoc(doc(db,"users",currentId),{
-    name:editM.querySelector("#editName").value,
-    email:editM.querySelector("#editEmail").value,
-    password:editM.querySelector("#editPassword").value,
-    pin:editM.querySelector("#editPin").value,
-    accountName:editM.querySelector("#editAccount").value
-  });
-  closeEditModal(); load();
-};
-const eye=document.getElementById("eye");
-eye.onclick=()=>{
-  const fld=document.getElementById("editPassword");
-  fld.type=fld.type==="password"?"text":"password";
-  eye.classList.toggle("fa-eye-slash");
-};
-function closeEditModal(){editM.style.display="none";}
-document.getElementById("cancelEdit").onclick=closeEditModal;
+        const tr = document.createElement("tr");
+        tr.dataset.id = s.id;
+        if(end < today) tr.classList.add("expired");
 
-/*  RENOVAR  */
-function openRenew(d){
-  renewM.style.display="flex";
-  renewM.querySelector("#renewStart").value=d.startDate;
-  renewM.querySelector("#renewEnd").value  =d.endDate;
-}
-document.getElementById("saveRenew").onclick=async()=>{
-  await updateDoc(doc(db,"users",currentId),{
-    startDate:renewM.querySelector("#renewStart").value,
-    endDate:renewM.querySelector("#renewEnd").value
-  });
-  closeRenewModal(); load();
-};
-function closeRenewModal(){renewM.style.display="none";}
-document.getElementById("cancelRenew").onclick=closeRenewModal;
+        tr.innerHTML = `
+          <td data-label="Nombre">${u.name}</td>
+          <td data-label="Correo">${u.email}</td>
+          <td data-label="Clave">${u.password}</td>
+          <td data-label="Inicio" data-original="${u.startDate}">${format(u.startDate)}</td>
+          <td data-label="Fin"    data-original="${u.endDate}">${format(u.endDate)}</td>
+          <td data-label="Perfil">${u.profile}</td>
+          <td data-label="PIN">${u.pin}</td>
+          <td data-label="Cuenta">${u.accountName}</td>
+          <td data-label="Acciones" class="actions">
+            <button class="btn edit-btn"   data-act="edit"><i class="fas fa-edit"></i></button>
+            <button class="btn renew-btn"  data-act="renew"><i class="fas fa-sync-alt"></i></button>
+            <button class="btn copy-btn"   data-act="copy"><i class="fas fa-copy"></i></button>
+            ${ end < today
+               ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-comment-dots"></i></button>`
+               : ``
+            }
+            <button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    load();
 
-/*  BORRAR  */
-async function delUser(){
-  if(!confirm("¿Eliminar este usuario?"))return;
-  await deleteDoc(doc(db,"users",currentId));
-  load();
-}
+    // delegación de acciones
+    tbody.addEventListener("click", e => {
+      const btn = e.target.closest("button");
+      if(!btn) return;
+      const tr = btn.closest("tr");
+      currentId = tr.dataset.id;
+      switch(btn.dataset.act){
+        case "edit":  openEdit(); break;
+        case "renew": openRenew(tr); break;
+        case "copy":  copyProfile(tr); break;
+        case "msg":   sendWhatsApp(); break;
+        case "del":   delUser(); break;
+      }
+    });
 
-/*  COPIAR PERFIL  */
-function copyProfile(d){
-  const msg=`Hola, ${d.name}. Tu Pantalla ${d.account} está activa,\n`+
-            `👤 USUARIO: ${d.email}\n🔐 CONTRASEÑA: ${d.password}\n`+
-            `📺: PERFIL ${d.profile}\n🔒 PIN: ${d.pin}\n`+
-            `📅 Fecha de corte: ${format(d.endDate)}\n\n`+
-            `Condiciones del servicio:\n`+
-            `1.-No modifique ninguna información de la cuenta\n`+
-            `2.-No puede estar en 2 o más dispositivos simultáneamente\n`+
-            `3.-No agregue ni elimine ningún perfil\n`+
-            `4.-Este es un producto digital. Después de la compra, no se puede\n`+
-            `   hacer ningún reembolso. Solo garantía de reemplazo.\n\n`+
-            `Nota: Si viola algunas de estas condiciones la garantía será suspendida\n`+
-            `Muchas gracias por su compra`;
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(msg).then(()=>alert("Perfil copiado")).catch(()=>alert("No se pudo copiar"));
-  }else{
-    prompt("Copia el texto:",msg);
-  }
-}
+    /* EDITAR */
+    async function openEdit(){
+      // traer datos directos para phone
+      const snap = await getDoc(doc(db,"users",currentId));
+      const u = snap.data();
+      editM.style.display = "flex";
+      editM.querySelector("#editName").value     = u.name;
+      editM.querySelector("#editEmail").value    = u.email;
+      editM.querySelector("#editPassword").value = u.password;
+      editM.querySelector("#editPin").value      = u.pin;
+      editM.querySelector("#editAccount").value  = u.accountName;
+      editM.querySelector("#editPhone").value    = u.phone || "";
+    }
+    document.getElementById("saveEdit").onclick = async () => {
+      await updateDoc(doc(db,"users",currentId), {
+        name       : editM.querySelector("#editName").value,
+        email      : editM.querySelector("#editEmail").value,
+        password   : editM.querySelector("#editPassword").value,
+        pin        : editM.querySelector("#editPin").value,
+        accountName: editM.querySelector("#editAccount").value,
+        phone      : editM.querySelector("#editPhone").value
+      });
+      closeEdit(); load();
+    };
+    eye.onclick = ()=>{
+      const f = document.getElementById("editPassword");
+      f.type = f.type==="password"?"text":"password";
+      eye.classList.toggle("fa-eye-slash");
+    };
+    document.getElementById("cancelEdit").onclick = closeEdit;
+    function closeEdit(){ editM.style.display="none"; }
 
-/* botón inicio */
-document.getElementById("backButton").onclick=()=>location.href="index.html";
-</script>
+    /* RENOVAR */
+    function openRenew(tr){
+      renewM.style.display="flex";
+      renewM.querySelector("#renewStart").value = tr.querySelector('[data-label="Inicio"]').dataset.original;
+      renewM.querySelector("#renewEnd").value   = tr.querySelector('[data-label="Fin"]').dataset.original;
+    }
+    document.getElementById("saveRenew").onclick = async ()=>{
+      await updateDoc(doc(db,"users",currentId), {
+        startDate: renewM.querySelector("#renewStart").value,
+        endDate  : renewM.querySelector("#renewEnd").value
+      });
+      closeRenew(); load();
+    };
+    document.getElementById("cancelRenew").onclick = closeRenew;
+    function closeRenew(){ renewM.style.display="none"; }
+
+    /* BORRAR */
+    async function delUser(){
+      if(!confirm("¿Eliminar usuario?")) return;
+      await deleteDoc(doc(db,"users",currentId));
+      load();
+    }
+
+    /* COPIAR PERFIL */
+    function copyProfile(tr){
+      const d = Array.from(tr.querySelectorAll("td")).map(td=>td.textContent.trim());
+      const msg = `Hola, ${d[0]}. Tu Pantalla ${d[7]} está activa,\n`+
+                  `👤 USUARIO: ${d[1]}\n🔐 CONTRASEÑA: ${d[2]}\n`+
+                  `📺: PERFIL ${d[5]}\n🔒 PIN: ${d[6]}\n`+
+                  `📅 Fecha de corte: ${d[4]}\n\n`+
+                  `Condiciones del servicio:\n`+
+                  `1.-No modifique ninguna información.\n`+
+                  `2.-No puede estar en 2 o más dispositivos.\n`+
+                  `3.-No agregue ni elimine perfiles.\n`+
+                  `4.-Producto digital, sin reembolso.\n\n`+
+                  `Gracias por tu compra.`;
+      navigator.clipboard.writeText(msg).then(()=>alert("Perfil copiado"));
+    }
+
+    /* ENVIAR WHATSAPP */
+    async function sendWhatsApp(){
+      const snap = await getDoc(doc(db,"users",currentId));
+      const u = snap.data();
+      const text = encodeURIComponent(
+        `Hola ${u.name}, tu perfil de cuenta ${u.accountName} venció el ${format(u.endDate)}. ¿Deseas renovarlo?`
+      );
+      window.open(`https://wa.me/${u.phone}?text=${text}`, "_blank");
+    }
+
+    /* BOTÓN INICIO */
+    document.getElementById("backButton").onclick = ()=> location.href="index.html";
+
+  </script>
 </body>
 </html>

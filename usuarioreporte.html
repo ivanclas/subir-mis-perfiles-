@@ -118,7 +118,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, getDocs, deleteDoc, doc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging.js";
 
     const firebaseConfig = {
@@ -282,7 +282,7 @@
     // Enviar notificación interna de Firebase
     async function sendNotification(message) {
       const messaging = getMessaging();
-      const token = "YOUR_FCM_TOKEN"; // Reemplaza con el token de tu dispositivo o el administrador
+      const token = "APA91bGHXQBB...9QgnYOEURwm0I3lmyqzk2TXQ"; // Reemplaza con el token de tu dispositivo o el administrador
 
       const payload = {
         notification: {
@@ -292,14 +292,14 @@
       };
 
       try {
-        await sendToDevice(messaging, token, payload);
-        console.log("Notificación enviada:", response);
+        await messaging.sendToDevice(token, payload);
+        console.log("Notificación enviada");
       } catch (error) {
         console.error("Error al enviar notificación:", error);
       }
     }
 
-    document.getElementById("backButton").onclick = () => location.href = "index.html";
+    document.getElementById("backButton").onclick = () => location.href = "usuarrioreporte.html";
   </script>
 </body>
 </html>

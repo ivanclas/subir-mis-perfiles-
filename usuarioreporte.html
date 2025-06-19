@@ -150,225 +150,226 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import {
-      getFirestore, collection, getDocs,
-      deleteDoc, doc, updateDoc, getDoc
-    } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import {
+    getFirestore, collection, getDocs,
+    deleteDoc, doc, updateDoc, getDoc
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-    // Configuración Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
-      authDomain: "guardar-fotos-ec316.firebaseapp.com",
-      projectId: "guardar-fotos-ec316",
-      storageBucket: "guardar-fotos-ec316.appspot.com",
-      messagingSenderId: "529201655026",
-      appId: "1:529201655026:web:f10e873d825a72b5d8b46b"
-    };
-    initializeApp(firebaseConfig);
-    const db = getFirestore();
+  // Configuración Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
+    authDomain: "guardar-fotos-ec316.firebaseapp.com",
+    projectId: "guardar-fotos-ec316",
+    storageBucket: "guardar-fotos-ec316.appspot.com",
+    messagingSenderId: "529201655026",
+    appId: "1:529201655026:web:f10e873d825a72b5d8b46b"
+  };
+  initializeApp(firebaseConfig);
+  const db = getFirestore();
 
-    const cardsContainer = document.getElementById("cardsContainer");
-    const editM   = document.getElementById("editModal");
-    const renewM  = document.getElementById("renewModal");
-    const eye     = document.getElementById("eye");
-    let currentId = null;
+  const cardsContainer = document.getElementById("cardsContainer");
+  const editM   = document.getElementById("editModal");
+  const renewM  = document.getElementById("renewModal");
+  const eye     = document.getElementById("eye");
+  let currentId = null;
 
-    const format = d => {
-      const [y,m,day] = d.split("-");
-      return `${day}-${m}-${y}`;
-    };
+  const format = d => {
+    const [y,m,day] = d.split("-");
+    return `${day}-${m}-${y}`;
+  };
 
-    // Función para calcular los días restantes
-    const daysBetween = (a,b) => {
-      const diffTime = b - a;
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Añadido el +1 para incluir el día actual
-    };
+  // Función para calcular los días restantes
+  const daysBetween = (a,b) => {
+    const diffTime = b - a;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Calcula los días restantes
+  };
 
-    // Función para crear el mensaje para copiar
-    function buildCopyMessage(u) {
-      return (
-        `Hola, ${u.name}. Tu Pantalla ${u.accountName} está activa,\n` +
-        `👤 USUARIO: ${u.email}\n` +
-        `🔐 CONTRASEÑA: ${u.password}\n` +
-        `📺: Perfil ${u.profile}\n` +
-        `🔒 PIN: ${u.pin}\n` +
-        `📅 Fecha de corte: ${format(u.endDate)}\n\n` +
-        `Condiciones del servicio:\n` +
-        `1.-No modifique ninguna información.\n` +
-        `2.-No puede estar en 2 o más dispositivos.\n` +
-        `3.-No agregue ni elimine perfiles.\n` +
-        `4.-Producto digital, sin reembolso.\n\n` +
-        `Gracias por tu compra.`
-      );
-    }
+  // Función para crear el mensaje para copiar
+  function buildCopyMessage(u) {
+    return (
+      `Hola, ${u.name}. Tu Pantalla ${u.accountName} está activa,\n` +
+      `👤 USUARIO: ${u.email}\n` +
+      `🔐 CONTRASEÑA: ${u.password}\n` +
+      `📺: Perfil ${u.profile}\n` +
+      `🔒 PIN: ${u.pin}\n` +
+      `📅 Fecha de corte: ${format(u.endDate)}\n\n` +
+      `Condiciones del servicio:\n` +
+      `1.-No modifique ninguna información.\n` +
+      `2.-No puede estar en 2 o más dispositivos.\n` +
+      `3.-No agregue ni elimine perfiles.\n` +
+      `4.-Producto digital, sin reembolso.\n\n` +
+      `Gracias por tu compra.`
+    );
+  }
 
-    // Función para abrir WhatsApp con un mensaje
-    async function sendWhatsApp(id) {
-      const snap = await getDoc(doc(db,"users",id));
-      const u    = snap.data();
-      const text = encodeURIComponent(
-        `Hola ${u.name}, tu perfil de cuenta ${u.accountName} venció el ${format(u.endDate)}. ¿Deseas renovarlo?`
-      );
-      window.open(`https://wa.me/${encodeURIComponent(u.phone)}?text=${text}`, "_blank");
-    }
+  // Función para abrir WhatsApp con un mensaje
+  async function sendWhatsApp(id) {
+    const snap = await getDoc(doc(db,"users",id));
+    const u    = snap.data();
+    const text = encodeURIComponent(
+      `Hola ${u.name}, tu perfil de cuenta ${u.accountName} venció el ${format(u.endDate)}. ¿Deseas renovarlo?`
+    );
+    window.open(`https://wa.me/${encodeURIComponent(u.phone)}?text=${text}`, "_blank");
+  }
 
-    async function load() {
-      cardsContainer.innerHTML = "";
-      const today = new Date(); today.setHours(0,0,0,0);
-      const snap  = await getDocs(collection(db,"users"));
+  async function load() {
+    cardsContainer.innerHTML = "";
+    const today = new Date(); today.setHours(0,0,0,0);
+    const snap  = await getDocs(collection(db,"users"));
 
-      snap.forEach(s => {
-        const u   = s.data();
-        const end = new Date(u.endDate); end.setHours(0,0,0,0);
-        const rem = daysBetween(today, end);
-        const expired = end < today;
+    snap.forEach(s => {
+      const u   = s.data();
+      const end = new Date(u.endDate); end.setHours(0,0,0,0);
+      const rem = daysBetween(today, end); // Calculando los días restantes
+      const expired = end < today;
 
-        const card = document.createElement("div");
-        card.className = "card " + (expired ? "expired" : "active");
-        card.dataset.id = s.id;
+      const card = document.createElement("div");
+      card.className = "card " + (expired ? "expired" : rem <= 3 ? "warning" : "active");
+      card.dataset.id = s.id;
 
-        const fields = [
-          ["Nombre", u.name],
-          ["Correo", u.email],
-          ["Clave", u.password],
-          ["Inicio", format(u.startDate)],
-          ["Fin", format(u.endDate)],
-          ["Perfil", u.profile],
-          ["PIN", u.pin],
-          ["Cuenta", u.accountName],
-          ["Días restantes", rem >= 0 ? rem : "Vencido"]
-        ];
-        fields.forEach(([label,val]) => {
-          const row = document.createElement("div");
-          row.className = "card-row";
-          row.innerHTML = `<span>${label}</span><span>${val}</span>`;
-          card.appendChild(row);
-        });
+      const fields = [
+        ["Nombre", u.name],
+        ["Correo", u.email],
+        ["Clave", u.password],
+        ["Inicio", format(u.startDate)],
+        ["Fin", format(u.endDate)],
+        ["Perfil", u.profile],
+        ["PIN", u.pin],
+        ["Cuenta", u.accountName],
+        ["Días restantes", rem >= 0 ? rem : "Vencido"]
+      ];
+      fields.forEach(([label,val]) => {
+        const row = document.createElement("div");
+        row.className = "card-row";
+        row.innerHTML = `<span>${label}</span><span>${val}</span>`;
+        card.appendChild(row);
+      });
 
-        const actions = document.createElement("div");
-        actions.className = "card-actions";
-        actions.innerHTML = ` 
-          <button class="btn edit-btn" data-act="edit"><i class="fas fa-edit"></i></button>
-          <button class="btn renew-btn" data-act="renew"><i class="fas fa-sync-alt"></i></button>
-          <button class="btn copy-btn" data-act="copy"><i class="fas fa-copy"></i></button>` +
-          (expired
-            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>`
-            : ""
-          ) +
-          `<button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>`;
-        card.appendChild(actions);
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+      actions.innerHTML = ` 
+        <button class="btn edit-btn" data-act="edit"><i class="fas fa-edit"></i></button>
+        <button class="btn renew-btn" data-act="renew"><i class="fas fa-sync-alt"></i></button>
+        <button class="btn copy-btn" data-act="copy"><i class="fas fa-copy"></i></button>` +
+        (expired
+          ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>`
+          : ""
+        ) +
+        `<button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>`;
+      card.appendChild(actions);
 
-        cardsContainer.appendChild(card);
+      cardsContainer.appendChild(card);
 
-        // Aquí añadimos la lógica para las notificaciones
-        if (rem <= 3) { // Notificar si el perfil está por vencer en 3 días o menos
-          if (Notification.permission === "granted") {
-            new Notification("¡Alerta! Perfil por vencer", {
-              body: `El perfil de ${u.name} está por vencer en ${rem} días.`
-            });
-          }
-        }
-
-        // Notificar si el perfil ya está vencido
-        if (expired && Notification.permission === "granted") {
-          new Notification("¡Alerta! Perfil vencido", {
-            body: `El perfil de ${u.name} ha vencido.`
+      // Aquí añadimos la lógica para las notificaciones
+      if (rem <= 3 && rem > 0) { // Notificar si el perfil está por vencer en 3 días o menos
+        if (Notification.permission === "granted") {
+          new Notification("¡Alerta! Perfil por vencer", {
+            body: `El perfil de ${u.name} está por vencer en ${rem} días.`
           });
         }
-      });
-    }
+      }
 
-    // Pedir permiso para mostrar notificaciones solo la primera vez
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-
-    load();
-
-    cardsContainer.addEventListener("click", async e => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      const id = btn.closest(".card").dataset.id;
-      switch (btn.dataset.act) {
-        case "edit":  await openEdit(id); break;
-        case "renew": openRenew(id);      break;
-        case "copy": {
-          const snap = await getDoc(doc(db,"users",id));
-          const u    = snap.data();
-          const msg  = buildCopyMessage(u);
-          await navigator.clipboard.writeText(msg);
-          alert("Mensaje copiado al portapapeles.");
-        } break;
-        case "msg":
-          await sendWhatsApp(id);
-          break;
-        case "del":
-          if (confirm("¿Eliminar usuario?")) {
-            await deleteDoc(doc(db,"users",id));
-            load();
-          }
-          break;
+      // Notificar si el perfil ya está vencido
+      if (expired && Notification.permission === "granted") {
+        new Notification("¡Alerta! Perfil vencido", {
+          body: `El perfil de ${u.name} ha vencido.`
+        });
       }
     });
+  }
 
-    async function openEdit(id) {
-      const snap = await getDoc(doc(db,"users",id));
-      const u    = snap.data();
-      editM.style.display = "flex";
-      editM.querySelector("#editName").value     = u.name;
-      editM.querySelector("#editEmail").value    = u.email;
-      editM.querySelector("#editPassword").value = u.password;
-      editM.querySelector("#editPin").value      = u.pin;
-      editM.querySelector("#editAccount").value  = u.accountName;
-      editM.querySelector("#editPhone").value    = u.phone||"";
-      currentId = id;
+  // Pedir permiso para mostrar notificaciones solo la primera vez
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+
+  load();
+
+  cardsContainer.addEventListener("click", async e => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const id = btn.closest(".card").dataset.id;
+    switch (btn.dataset.act) {
+      case "edit":  await openEdit(id); break;
+      case "renew": openRenew(id);      break;
+      case "copy": {
+        const snap = await getDoc(doc(db,"users",id));
+        const u    = snap.data();
+        const msg  = buildCopyMessage(u);
+        await navigator.clipboard.writeText(msg);
+        alert("Mensaje copiado al portapapeles.");
+      } break;
+      case "msg":
+        await sendWhatsApp(id);
+        break;
+      case "del":
+        if (confirm("¿Eliminar usuario?")) {
+          await deleteDoc(doc(db,"users",id));
+          load();
+        }
+        break;
     }
+  });
 
-    document.getElementById("saveEdit").onclick = async () => {
-      await updateDoc(doc(db,"users",currentId), {
-        name:        editM.querySelector("#editName").value,
-        email:       editM.querySelector("#editEmail").value,
-        password:    editM.querySelector("#editPassword").value,
-        pin:         editM.querySelector("#editPin").value,
-        accountName: editM.querySelector("#editAccount").value,
-        phone:       editM.querySelector("#editPhone").value
-      });
-      editM.style.display="none"; load();
-    };
+  async function openEdit(id) {
+    const snap = await getDoc(doc(db,"users",id));
+    const u    = snap.data();
+    editM.style.display = "flex";
+    editM.querySelector("#editName").value     = u.name;
+    editM.querySelector("#editEmail").value    = u.email;
+    editM.querySelector("#editPassword").value = u.password;
+    editM.querySelector("#editPin").value      = u.pin;
+    editM.querySelector("#editAccount").value  = u.accountName;
+    editM.querySelector("#editPhone").value    = u.phone||"";
+    currentId = id;
+  }
 
-    eye.onclick = () => {
-      const f = document.getElementById("editPassword");
-      f.type = f.type==="password"?"text":"password";
-      eye.classList.toggle("fa-eye-slash");
-    };
+  document.getElementById("saveEdit").onclick = async () => {
+    await updateDoc(doc(db,"users",currentId), {
+      name:        editM.querySelector("#editName").value,
+      email:       editM.querySelector("#editEmail").value,
+      password:    editM.querySelector("#editPassword").value,
+      pin:         editM.querySelector("#editPin").value,
+      accountName: editM.querySelector("#editAccount").value,
+      phone:       editM.querySelector("#editPhone").value
+    });
+    editM.style.display="none"; load();
+  };
 
-    document.getElementById("cancelEdit").onclick = () => editM.style.display="none";
+  eye.onclick = () => {
+    const f = document.getElementById("editPassword");
+    f.type = f.type==="password"?"text":"password";
+    eye.classList.toggle("fa-eye-slash");
+  };
 
-    function openRenew(id) {
-      const card = document.querySelector(`.card[data-id="${id}"]`);
-      const s = card.querySelector('.card-row:nth-child(4) span:last-child')
-                    .textContent.split("-").reverse().join("-");
-      const e = card.querySelector('.card-row:nth-child(5) span:last-child')
-                    .textContent.split("-").reverse().join("-");
-      renewM.style.display="flex";
-      renewM.querySelector("#renewStart").value = s;
-      renewM.querySelector("#renewEnd").value   = e;
-      currentId = id;
-    }
+  document.getElementById("cancelEdit").onclick = () => editM.style.display="none";
 
-    document.getElementById("saveRenew").onclick = async () => {
-      await updateDoc(doc(db,"users",currentId), {
-        startDate: renewM.querySelector("#renewStart").value,
-        endDate:   renewM.querySelector("#renewEnd").value
-      });
-      renewM.style.display="none"; load();
-    };
+  function openRenew(id) {
+    const card = document.querySelector(`.card[data-id="${id}"]`);
+    const s = card.querySelector('.card-row:nth-child(4) span:last-child')
+                  .textContent.split("-").reverse().join("-");
+    const e = card.querySelector('.card-row:nth-child(5) span:last-child')
+                  .textContent.split("-").reverse().join("-");
+    renewM.style.display="flex";
+    renewM.querySelector("#renewStart").value = s;
+    renewM.querySelector("#renewEnd").value   = e;
+    currentId = id;
+  }
 
-    document.getElementById("cancelRenew").onclick = () => renewM.style.display="none";
+  document.getElementById("saveRenew").onclick = async () => {
+    await updateDoc(doc(db,"users",currentId), {
+      startDate: renewM.querySelector("#renewStart").value,
+      endDate:   renewM.querySelector("#renewEnd").value
+    });
+    renewM.style.display="none"; load();
+  };
 
-    document.getElementById("backButton").onclick = () => location.href="index.html";
-  </script>
+  document.getElementById("cancelRenew").onclick = () => renewM.style.display="none";
+
+  document.getElementById("backButton").onclick = () => location.href="index.html";
+</script>
+
 </body>
 </html>

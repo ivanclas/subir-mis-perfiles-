@@ -179,10 +179,14 @@
       const [y,m,day] = d.split("-");
       return `${day}-${m}-${y}`;
     };
-    const daysBetween = (a,b) =>
-      Math.ceil((b - a)/(1000*60*60*24));
 
-    // plantilla completa
+    // Función para calcular los días restantes
+    const daysBetween = (a,b) => {
+      const diffTime = b - a;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Añadido el +1 para incluir el día actual
+    };
+
+    // Función para crear el mensaje para copiar
     function buildCopyMessage(u) {
       return (
         `Hola, ${u.name}. Tu Pantalla ${u.accountName} está activa,\n` +
@@ -200,7 +204,7 @@
       );
     }
 
-    // abre WhatsApp con mensaje
+    // Función para abrir WhatsApp con un mensaje
     async function sendWhatsApp(id) {
       const snap = await getDoc(doc(db,"users",id));
       const u    = snap.data();
@@ -245,7 +249,7 @@
 
         const actions = document.createElement("div");
         actions.className = "card-actions";
-        actions.innerHTML = `
+        actions.innerHTML = ` 
           <button class="btn edit-btn" data-act="edit"><i class="fas fa-edit"></i></button>
           <button class="btn renew-btn" data-act="renew"><i class="fas fa-sync-alt"></i></button>
           <button class="btn copy-btn" data-act="copy"><i class="fas fa-copy"></i></button>` +
@@ -257,8 +261,30 @@
         card.appendChild(actions);
 
         cardsContainer.appendChild(card);
+
+        // Aquí añadimos la lógica para las notificaciones
+        if (rem <= 3) { // Notificar si el perfil está por vencer en 3 días o menos
+          if (Notification.permission === "granted") {
+            new Notification("¡Alerta! Perfil por vencer", {
+              body: `El perfil de ${u.name} está por vencer en ${rem} días.`
+            });
+          }
+        }
+
+        // Notificar si el perfil ya está vencido
+        if (expired && Notification.permission === "granted") {
+          new Notification("¡Alerta! Perfil vencido", {
+            body: `El perfil de ${u.name} ha vencido.`
+          });
+        }
       });
     }
+
+    // Pedir permiso para mostrar notificaciones solo la primera vez
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
     load();
 
     cardsContainer.addEventListener("click", async e => {
@@ -299,6 +325,7 @@
       editM.querySelector("#editPhone").value    = u.phone||"";
       currentId = id;
     }
+
     document.getElementById("saveEdit").onclick = async () => {
       await updateDoc(doc(db,"users",currentId), {
         name:        editM.querySelector("#editName").value,
@@ -310,11 +337,13 @@
       });
       editM.style.display="none"; load();
     };
+
     eye.onclick = () => {
       const f = document.getElementById("editPassword");
       f.type = f.type==="password"?"text":"password";
       eye.classList.toggle("fa-eye-slash");
     };
+
     document.getElementById("cancelEdit").onclick = () => editM.style.display="none";
 
     function openRenew(id) {
@@ -328,6 +357,7 @@
       renewM.querySelector("#renewEnd").value   = e;
       currentId = id;
     }
+
     document.getElementById("saveRenew").onclick = async () => {
       await updateDoc(doc(db,"users",currentId), {
         startDate: renewM.querySelector("#renewStart").value,
@@ -335,6 +365,7 @@
       });
       renewM.style.display="none"; load();
     };
+
     document.getElementById("cancelRenew").onclick = () => renewM.style.display="none";
 
     document.getElementById("backButton").onclick = () => location.href="index.html";

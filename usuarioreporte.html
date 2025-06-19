@@ -261,28 +261,7 @@
         card.appendChild(actions);
 
         cardsContainer.appendChild(card);
-
-        // Aquí añadimos la lógica para las notificaciones
-        if (rem <= 3) { // Notificar si el perfil está por vencer en 3 días o menos
-          if (Notification.permission === "granted") {
-            new Notification("¡Alerta! Perfil por vencer", {
-              body: `El perfil de ${u.name} está por vencer en ${rem} días.`
-            });
-          }
-        }
-
-        // Notificar si el perfil ya está vencido
-        if (expired && Notification.permission === "granted") {
-          new Notification("¡Alerta! Perfil vencido", {
-            body: `El perfil de ${u.name} ha vencido.`
-          });
-        }
       });
-    }
-
-    // Pedir permiso para mostrar notificaciones solo la primera vez
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
     }
 
     load();

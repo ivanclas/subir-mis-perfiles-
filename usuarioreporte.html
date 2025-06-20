@@ -203,7 +203,7 @@
       if (Notification.permission === "granted") {
         new Notification(message, {
           body: "Revisa los detalles en el sistema.",
-          icon: "icono.png"
+          icon: "notification.png"
         });
       }
     }
@@ -293,7 +293,7 @@
         `Hola, ${u.name}. Tu Pantalla ${u.accountName} está activa,\n` +
         `👤 USUARIO: ${u.email}\n` +
         `🔐 CONTRASEÑA: ${u.password}\n` +
-        `📺: Perfil ${u.profile}\n` +
+        `📺:${u.profile}\n` +
         `🔒 PIN: ${u.pin}\n` +
         `📅 Fecha de corte: ${format(u.endDate)}\n\n` +
         `Condiciones del servicio:\n` +

@@ -1,0 +1,13 @@
+{
+  "name": "Reporte de Usuarios",
+  "short_name": "Usuarios",
+  "start_url": "/usuarioreporte.html",
+  "display": "standalone",
+  "background_color": "#F4F6F9",
+  "theme_color": "#286F43",
+  "icons": [{
+    "src": "/icon-192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }]
+}

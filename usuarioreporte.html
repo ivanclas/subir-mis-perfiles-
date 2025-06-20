@@ -175,45 +175,68 @@
     const eye     = document.getElementById("eye");
     let currentId = null;
 
-    const format = d => {
-      const [y,m,day] = d.split("-");
+    // Solicitar permiso de notificaciones
+    if ("Notification" in window) {
+      Notification.requestPermission().then(function(permission) {
+        if (permission === "granted") {
+          console.log("Notificaciones habilitadas");
+        } else {
+          console.log("Notificaciones deshabilitadas");
+        }
+      });
+    }
+
+    // Función para formatear las fechas
+    const format = (d) => {
+      const [y, m, day] = d.split("-");
       return `${day}-${m}-${y}`;
     };
 
     // Función para calcular los días restantes
-    const daysBetween = (a,b) => {
+    const daysBetween = (a, b) => {
       const diffTime = b - a;
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Añadido el +1 para incluir el día actual
     };
 
-    // Función para crear el mensaje para copiar
-    function buildCopyMessage(u) {
-      return (
-        `Hola, ${u.name}. Tu Pantalla ${u.accountName} está activa,\n` +
-        `👤 USUARIO: ${u.email}\n` +
-        `🔐 CONTRASEÑA: ${u.password}\n` +
-        `📺: Perfil ${u.profile}\n` +
-        `🔒 PIN: ${u.pin}\n` +
-        `📅 Fecha de corte: ${format(u.endDate)}\n\n` +
-        `Condiciones del servicio:\n` +
-        `1.-No modifique ninguna información.\n` +
-        `2.-No puede estar en 2 o más dispositivos.\n` +
-        `3.-No agregue ni elimine perfiles.\n` +
-        `4.-Producto digital, sin reembolso.\n\n` +
-        `Gracias por tu compra.`
-      );
+    // Función para mostrar la notificación
+    function showNotification(message) {
+      if (Notification.permission === "granted") {
+        new Notification(message, {
+          body: "Revisa los detalles en el sistema.",
+          icon: "icono.png"
+        });
+      }
     }
 
-    // Función para abrir WhatsApp con un mensaje
-    async function sendWhatsApp(id) {
-      const snap = await getDoc(doc(db,"users",id));
-      const u    = snap.data();
-      const text = encodeURIComponent(
-        `Hola ${u.name}, tu perfil de cuenta ${u.accountName} venció el ${format(u.endDate)}. ¿Deseas renovarlo?`
-      );
-      window.open(`https://wa.me/${encodeURIComponent(u.phone)}?text=${text}`, "_blank");
+    // Función para verificar perfiles vencidos y por vencer
+    async function checkProfiles() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const snap = await getDocs(collection(db, "users"));
+
+      snap.forEach(s => {
+        const u = s.data();
+        const end = new Date(u.endDate);
+        end.setHours(0, 0, 0, 0);
+        const remainingDays = daysBetween(today, end);
+
+        // Verificar si el perfil está por vencer (3 días antes)
+        if (remainingDays === 3) {
+          showNotification(`El perfil de ${u.name} está por vencer en 3 días.`);
+        }
+
+        // Verificar si el perfil ya está vencido
+        if (remainingDays < 0) {
+          showNotification(`El perfil de ${u.name} ha vencido.`);
+        }
+      });
     }
 
+    // Ejecutar la verificación al cargar la página
+    checkProfiles();
+
+    // Función para cargar los perfiles
     async function load() {
       cardsContainer.innerHTML = "";
       const today = new Date(); today.setHours(0,0,0,0);
@@ -254,9 +277,7 @@
           <button class="btn renew-btn" data-act="renew"><i class="fas fa-sync-alt"></i></button>
           <button class="btn copy-btn" data-act="copy"><i class="fas fa-copy"></i></button>` +
           (expired
-            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>`
-            : ""
-          ) +
+            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>` : "") +
           `<button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>`;
         card.appendChild(actions);
 
@@ -266,6 +287,43 @@
 
     load();
 
+    // Función para construir el mensaje de copia
+    function buildCopyMessage(u) {
+      return (
+        `Hola, ${u.name}. Tu Pantalla ${u.accountName} está activa,\n` +
+        `👤 USUARIO: ${u.email}\n` +
+        `🔐 CONTRASEÑA: ${u.password}\n` +
+        `📺: Perfil ${u.profile}\n` +
+        `🔒 PIN: ${u.pin}\n` +
+        `📅 Fecha de corte: ${format(u.endDate)}\n\n` +
+        `Condiciones del servicio:\n` +
+        `1.-No modifique ninguna información.\n` +
+        `2.-No puede estar en 2 o más dispositivos.\n` +
+        `3.-No agregue ni elimine perfiles.\n` +
+        `4.-Producto digital, sin reembolso.\n\n` +
+        `Gracias por tu compra.`
+      );
+    }
+
+    // Función para copiar el mensaje
+    async function copyMessage(id) {
+      const snap = await getDoc(doc(db, "users", id));
+      const u = snap.data();
+      const msg = buildCopyMessage(u);
+      await navigator.clipboard.writeText(msg);
+      alert("Mensaje copiado al portapapeles.");
+    }
+
+    // Función para enviar mensaje por WhatsApp
+    async function sendWhatsApp(id) {
+      const snap = await getDoc(doc(db, "users", id));
+      const u = snap.data();
+      const text = encodeURIComponent(
+        `Hola ${u.name}, tu perfil de cuenta ${u.accountName} venció el ${format(u.endDate)}. ¿Deseas renovarlo?`
+      );
+      window.open(`https://wa.me/${encodeURIComponent(u.phone)}?text=${text}`, "_blank");
+    }
+
     cardsContainer.addEventListener("click", async e => {
       const btn = e.target.closest("button");
       if (!btn) return;
@@ -273,13 +331,9 @@
       switch (btn.dataset.act) {
         case "edit":  await openEdit(id); break;
         case "renew": openRenew(id);      break;
-        case "copy": {
-          const snap = await getDoc(doc(db,"users",id));
-          const u    = snap.data();
-          const msg  = buildCopyMessage(u);
-          await navigator.clipboard.writeText(msg);
-          alert("Mensaje copiado al portapapeles.");
-        } break;
+        case "copy":
+          await copyMessage(id);
+          break;
         case "msg":
           await sendWhatsApp(id);
           break;
@@ -294,36 +348,37 @@
 
     async function openEdit(id) {
       const snap = await getDoc(doc(db,"users",id));
-      const u    = snap.data();
+      const u = snap.data();
       editM.style.display = "flex";
-      editM.querySelector("#editName").value     = u.name;
-      editM.querySelector("#editEmail").value    = u.email;
+      editM.querySelector("#editName").value = u.name;
+      editM.querySelector("#editEmail").value = u.email;
       editM.querySelector("#editPassword").value = u.password;
-      editM.querySelector("#editPin").value      = u.pin;
-      editM.querySelector("#editAccount").value  = u.accountName;
-      editM.querySelector("#editPhone").value    = u.phone||"";
+      editM.querySelector("#editPin").value = u.pin;
+      editM.querySelector("#editAccount").value = u.accountName;
+      editM.querySelector("#editPhone").value = u.phone || "";
       currentId = id;
     }
 
     document.getElementById("saveEdit").onclick = async () => {
-      await updateDoc(doc(db,"users",currentId), {
-        name:        editM.querySelector("#editName").value,
-        email:       editM.querySelector("#editEmail").value,
-        password:    editM.querySelector("#editPassword").value,
-        pin:         editM.querySelector("#editPin").value,
+      await updateDoc(doc(db, "users", currentId), {
+        name: editM.querySelector("#editName").value,
+        email: editM.querySelector("#editEmail").value,
+        password: editM.querySelector("#editPassword").value,
+        pin: editM.querySelector("#editPin").value,
         accountName: editM.querySelector("#editAccount").value,
-        phone:       editM.querySelector("#editPhone").value
+        phone: editM.querySelector("#editPhone").value
       });
-      editM.style.display="none"; load();
+      editM.style.display = "none";
+      load();
     };
 
     eye.onclick = () => {
       const f = document.getElementById("editPassword");
-      f.type = f.type==="password"?"text":"password";
+      f.type = f.type === "password" ? "text" : "password";
       eye.classList.toggle("fa-eye-slash");
     };
 
-    document.getElementById("cancelEdit").onclick = () => editM.style.display="none";
+    document.getElementById("cancelEdit").onclick = () => editM.style.display = "none";
 
     function openRenew(id) {
       const card = document.querySelector(`.card[data-id="${id}"]`);
@@ -331,23 +386,24 @@
                     .textContent.split("-").reverse().join("-");
       const e = card.querySelector('.card-row:nth-child(5) span:last-child')
                     .textContent.split("-").reverse().join("-");
-      renewM.style.display="flex";
+      renewM.style.display = "flex";
       renewM.querySelector("#renewStart").value = s;
-      renewM.querySelector("#renewEnd").value   = e;
+      renewM.querySelector("#renewEnd").value = e;
       currentId = id;
     }
 
     document.getElementById("saveRenew").onclick = async () => {
-      await updateDoc(doc(db,"users",currentId), {
+      await updateDoc(doc(db, "users", currentId), {
         startDate: renewM.querySelector("#renewStart").value,
-        endDate:   renewM.querySelector("#renewEnd").value
+        endDate: renewM.querySelector("#renewEnd").value
       });
-      renewM.style.display="none"; load();
+      renewM.style.display = "none";
+      load();
     };
 
-    document.getElementById("cancelRenew").onclick = () => renewM.style.display="none";
+    document.getElementById("cancelRenew").onclick = () => renewM.style.display = "none";
 
-    document.getElementById("backButton").onclick = () => location.href="index.html";
+    document.getElementById("backButton").onclick = () => location.href = "index.html";
   </script>
 </body>
 </html>

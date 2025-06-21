@@ -156,6 +156,7 @@
       getFirestore, collection, getDocs,
       deleteDoc, doc, updateDoc, getDoc
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging.js";
 
     // Configuración Firebase
     const firebaseConfig = {
@@ -166,8 +167,11 @@
       messagingSenderId: "529201655026",
       appId: "1:529201655026:web:f10e873d825a72b5d8b46b"
     };
-    initializeApp(firebaseConfig);
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
     const db = getFirestore();
+    const messaging = getMessaging(app);
 
     const cardsContainer = document.getElementById("cardsContainer");
     const editM   = document.getElementById("editModal");
@@ -185,6 +189,18 @@
         }
       });
     }
+
+    // Obtener el token de registro para notificaciones
+    getToken(messaging, { vapidKey: 'YcsA3xv6Yj69xfDDSWMnfnP7ygXpLsj9m2_PqqR-7Uw' }).then((currentToken) => {
+      if (currentToken) {
+        // Enviar el token a tu servidor o almacenarlo para usarlo más tarde
+        console.log('Token de registro:', currentToken);
+      } else {
+        console.log('No se pudo obtener el token de registro.');
+      }
+    }).catch((err) => {
+      console.log('Error al obtener el token:', err);
+    });
 
     // Función para formatear las fechas
     const format = (d) => {

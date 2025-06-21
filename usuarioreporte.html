@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Reporte de Usuarios</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
@@ -156,7 +156,6 @@
       getFirestore, collection, getDocs,
       deleteDoc, doc, updateDoc, getDoc
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging.js";
 
     // Configuración Firebase
     const firebaseConfig = {
@@ -167,47 +166,25 @@
       messagingSenderId: "529201655026",
       appId: "1:529201655026:web:f10e873d825a72b5d8b46b"
     };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const messaging = getMessaging(app);
+    initializeApp(firebaseConfig);
+    const db = getFirestore();
 
     const cardsContainer = document.getElementById("cardsContainer");
-    const editM = document.getElementById("editModal");
-    const renewM = document.getElementById("renewModal");
-    const eye = document.getElementById("eye");
+    const editM   = document.getElementById("editModal");
+    const renewM  = document.getElementById("renewModal");
+    const eye     = document.getElementById("eye");
     let currentId = null;
 
     // Solicitar permiso de notificaciones
     if ("Notification" in window) {
-      Notification.requestPermission().then(function (permission) {
+      Notification.requestPermission().then(function(permission) {
         if (permission === "granted") {
           console.log("Notificaciones habilitadas");
-          getToken(messaging, {
-            vapidKey: 'YOUR_PUBLIC_VAPID_KEY_HERE'
-          }).then((currentToken) => {
-            if (currentToken) {
-              console.log('Token de notificación: ', currentToken);
-              // Enviar este token al servidor si es necesario
-            } else {
-              console.log('No se pudo obtener el token');
-            }
-          }).catch((err) => {
-            console.log('Error al obtener el token: ', err);
-          });
         } else {
           console.log("Notificaciones deshabilitadas");
         }
       });
     }
-
-    // Función para recibir las notificaciones
-    onMessage(messaging, (payload) => {
-      console.log('Mensaje recibido. ', payload);
-      const notification = new Notification(payload.notification.title, {
-        body: payload.notification.body,
-        icon: payload.notification.icon,
-      });
-    });
 
     // Función para formatear las fechas
     const format = (d) => {
@@ -262,14 +239,12 @@
     // Función para cargar los perfiles
     async function load() {
       cardsContainer.innerHTML = "";
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const snap = await getDocs(collection(db, "users"));
+      const today = new Date(); today.setHours(0,0,0,0);
+      const snap  = await getDocs(collection(db,"users"));
 
       snap.forEach(s => {
-        const u = s.data();
-        const end = new Date(u.endDate);
-        end.setHours(0, 0, 0, 0);
+        const u   = s.data();
+        const end = new Date(u.endDate); end.setHours(0,0,0,0);
         const rem = daysBetween(today, end);
         const expired = end < today;
 
@@ -288,7 +263,7 @@
           ["Cuenta", u.accountName],
           ["Días restantes", rem >= 0 ? rem : "Vencido"]
         ];
-        fields.forEach(([label, val]) => {
+        fields.forEach(([label,val]) => {
           const row = document.createElement("div");
           row.className = "card-row";
           row.innerHTML = `<span>${label}</span><span>${val}</span>`;
@@ -302,10 +277,10 @@
           <button class="btn renew-btn" data-act="renew"><i class="fas fa-sync-alt"></i></button>
           <button class="btn copy-btn" data-act="copy"><i class="fas fa-copy"></i></button>` +
           (rem <= 3 && rem >= 1
-            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>`
-            : "") +
+            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>` 
+            : "") + 
           (expired
-            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>` : "") +
+            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>` : "") + 
           `<button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>`;
         card.appendChild(actions);
 

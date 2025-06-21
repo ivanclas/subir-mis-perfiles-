@@ -221,9 +221,9 @@
         end.setHours(0, 0, 0, 0);
         const remainingDays = daysBetween(today, end);
 
-        // Verificar si el perfil está por vencer (3 días antes)
-        if (remainingDays === 3) {
-          showNotification(`El perfil de ${u.name} está por vencer en 3 días.`);
+        // Verificar si el perfil está por vencer (3, 2 o 1 día antes)
+        if (remainingDays <= 3 && remainingDays >= 1) {
+          showNotification(`El perfil de ${u.name} está por vencer en ${remainingDays} días.`);
         }
 
         // Verificar si el perfil ya está vencido
@@ -276,6 +276,9 @@
           <button class="btn edit-btn" data-act="edit"><i class="fas fa-edit"></i></button>
           <button class="btn renew-btn" data-act="renew"><i class="fas fa-sync-alt"></i></button>
           <button class="btn copy-btn" data-act="copy"><i class="fas fa-copy"></i></button>` +
+          (rem <= 3 && rem >= 1
+            ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>`
+            : "") +
           (expired
             ? `<button class="btn msg-btn" data-act="msg"><i class="fas fa-exclamation-circle"></i></button>` : "") +
           `<button class="btn delete-btn" data-act="del"><i class="fas fa-trash-alt"></i></button>`;

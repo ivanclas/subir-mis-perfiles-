@@ -1,8 +1,7 @@
-// Importar los scripts necesarios de Firebase
+// firebase-messaging-sw.js
 importScripts('https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging.js');
 
-// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyD8Qixd8Q5DFYu0a5l5jiYC2ODrUbnjwuk",
   authDomain: "guardar-fotos-ec316.firebaseapp.com",
@@ -13,11 +12,9 @@ const firebaseConfig = {
   measurementId: "G-SMEHYGBPRR"
 };
 
-// Inicializar Firebase
-const app = firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// Función para recibir mensajes cuando la app está en segundo plano
 messaging.onBackgroundMessage(function(payload) {
   console.log("Mensaje en segundo plano recibido", payload);
   const notificationTitle = payload.notification.title;
